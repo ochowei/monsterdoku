@@ -239,7 +239,6 @@ export default function App() {
         <GameHeader
           currentLevel={levelIndex}
           totalLevels={PUZZLES.length}
-          onSelectLevel={handleSelectLevel}
           foxCount={foxCount}
           totalFoxes={size}
           lives={lives}
