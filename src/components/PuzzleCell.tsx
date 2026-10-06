@@ -41,8 +41,8 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
       }}
       className={`
         relative flex items-center justify-center aspect-square select-none outline-none
-        transition-colors duration-150 cursor-pointer
-        hover:brightness-110 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:z-20
+        transition-colors duration-150 ${state === 'fox' ? 'cursor-default' : 'cursor-pointer hover:brightness-110'}
+        focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:z-20
         ${borderClasses}
         ${
           isConflicted
@@ -64,11 +64,18 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
       {/* State Display: Fox */}
       {state === 'fox' && (
         <div
-          className={`relative z-10 transform transition-transform duration-200 active:scale-95 ${
+          className={`relative z-10 transform transition-transform duration-200 ${
             isConflicted ? 'animate-[shake_0.4s_ease-in-out]' : ''
           }`}
         >
           <FoxIcon size={46} animated={false} />
+          {/* Confirmed check badge showing the fox is locked in */}
+          <span
+            className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full text-[9px] font-bold text-slate-950 flex items-center justify-center shadow-sm ring-1 ring-slate-900"
+            title="已確認正確鎖定"
+          >
+            ✓
+          </span>
           {isConflicted && (
             <span
               className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-600 rounded-full text-[9px] font-bold text-white flex items-center justify-center shadow-sm"

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { PUZZLES } from './data/samplePuzzle';
 import { CellState, ConflictInfo } from './types/puzzle';
 import { computeConflicts, checkVictory, getHintAction, evaluateBoard } from './utils/puzzleValidation';
@@ -11,7 +11,7 @@ import { sounds } from './utils/audio';
 import { GameHeader } from './components/GameHeader';
 import { PuzzleBoard } from './components/PuzzleBoard';
 import { ColorStatusLegend } from './components/ColorStatusLegend';
-import { InteractionTools } from './components/InteractionTools';
+import { InteractionTools, PlacementMode } from './components/InteractionTools';
 import { ValidationStatusHUD } from './components/ValidationStatusHUD';
 import { HowToPlayModal } from './components/HowToPlayModal';
 import { VictoryOverlay } from './components/VictoryOverlay';
@@ -31,6 +31,20 @@ export default function App() {
   // Dragging state for left-click exclusion marking
   const [isDragging, setIsDragging] = useState(false);
   const [dragTargetState, setDragTargetState] = useState<CellState | null>(null);
+
+  // Placement mode: 'confirm' (Right-click modal) vs 'quick' (Left-click triple click)
+  const [placementMode, setPlacementMode] = useState<PlacementMode>('confirm');
+  const clickTrackerRef = useRef<{
+    row: number;
+    col: number;
+    count: number;
+    lastTime: number;
+  }>({
+    row: -1,
+    col: -1,
+    count: 0,
+    lastTime: 0,
+  });
 
   // Right-click pending placement (ghost fox + confirmation dialog)
   const [pendingPlacement, setPendingPlacement] = useState<{
@@ -106,7 +120,7 @@ export default function App() {
     return count;
   }, [gridState, size]);
 
-  // Left Mouse Down: single click or drag start to mark "排除" (❌)
+  // Left Mouse Down: single click or drag to mark "排除" (❌), or triple-click to fast-place in quick mode
   const handleCellMouseDown = useCallback(
     (e: React.MouseEvent, row: number, col: number) => {
       // Left click only (e.button === 0)
@@ -117,10 +131,76 @@ export default function App() {
         return;
       }
 
+      // Once correctly placed, Fox cells are locked and cannot be canceled (prevents misclicking)
+      if (gridState[row][col] === 'fox') {
+        return;
+      }
+
       setHintCell(null);
+
+      // Track clicks for Quick Mode triple-click
+      const now = Date.now();
+      const isSameCell =
+        clickTrackerRef.current.row === row &&
+        clickTrackerRef.current.col === col &&
+        now - clickTrackerRef.current.lastTime < 500;
+
+      const clickCount = isSameCell ? clickTrackerRef.current.count + 1 : 1;
+      clickTrackerRef.current = {
+        row,
+        col,
+        count: clickCount,
+        lastTime: now,
+      };
+
+      const isTripleClick = placementMode === 'quick' && (e.detail >= 3 || clickCount >= 3);
+
+      if (isTripleClick) {
+        // Reset click tracker so subsequent clicks start fresh
+        clickTrackerRef.current.count = 0;
+        setIsDragging(false);
+        setDragTargetState(null);
+
+        // Fast place Fox!
+        const isCorrect = puzzle.solution[row] === col;
+        if (!isCorrect) {
+          // Mistake! Deduct 1 HP
+          setLives((prevLives) => {
+            const nextLives = Math.max(0, prevLives - 1);
+            if (nextLives === 0) {
+              setTimeout(() => {
+                setIsGameOverOpen(true);
+                sounds.playGameOver();
+              }, 300);
+            }
+            return nextLives;
+          });
+
+          // Mark this cell as cross so player knows it's excluded
+          setGridState((prev) => {
+            const next = prev.map((r) => [...r]);
+            next[row][col] = 'cross';
+            return next;
+          });
+          sounds.playMistake();
+          setHintBanner(`⚠️ 快速放置錯誤！失去 1 滴血！該格已排除為 ❌。`);
+        } else {
+          // Correct!
+          setGridState((prev) => {
+            const next = prev.map((r) => [...r]);
+            next[row][col] = 'fox';
+            return next;
+          });
+          sounds.playFoxPlace();
+          setHintBanner(null);
+        }
+        return;
+      }
+
+      // Normal left click & drag start:
       const current = gridState[row][col];
       // If cell is already cross, toggle back to empty
-      // If empty or fox, mark as cross (排除)
+      // If empty, mark as cross (排除)
       const nextState: CellState = current === 'cross' ? 'empty' : 'cross';
 
       setDragTargetState(nextState);
@@ -138,7 +218,7 @@ export default function App() {
         sounds.playClear();
       }
     },
-    [gridState, lives]
+    [gridState, lives, placementMode, puzzle]
   );
 
   // Drag over other cells while left mouse button is pressed
@@ -149,7 +229,7 @@ export default function App() {
 
       setGridState((prev) => {
         // Protect already confirmed foxes from being accidentally overwritten when painting crosses
-        if (prev[row][col] === 'fox' && dragTargetState === 'cross') return prev;
+        if (prev[row][col] === 'fox') return prev;
         if (prev[row][col] === dragTargetState) return prev;
         const next = prev.map((r) => [...r]);
         next[row][col] = dragTargetState;
@@ -174,18 +254,12 @@ export default function App() {
         return;
       }
 
-      setHintCell(null);
-
-      // If already a fox, right clicking toggles it off
+      // Once correctly placed, Fox cells are locked and cannot be canceled
       if (gridState[row][col] === 'fox') {
-        setGridState((prev) => {
-          const next = prev.map((r) => [...r]);
-          next[row][col] = 'empty';
-          return next;
-        });
-        sounds.playClear();
         return;
       }
+
+      setHintCell(null);
 
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       // Show virtual ghost preview and open confirmation dialog
@@ -345,6 +419,11 @@ export default function App() {
         <InteractionTools
           hintBanner={hintBanner}
           onClearHint={() => setHintBanner(null)}
+          placementMode={placementMode}
+          onChangePlacementMode={(mode) => {
+            setPlacementMode(mode);
+            sounds.playTap();
+          }}
         />
 
         {/* Color Status Legend */}
