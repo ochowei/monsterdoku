@@ -3,6 +3,9 @@ import { Volume2, VolumeX, HelpCircle, RotateCcw, Lightbulb, Heart } from 'lucid
 import { FoxIcon } from './FoxIllustration';
 
 interface GameHeaderProps {
+  currentLevel: number;
+  totalLevels: number;
+  onSelectLevel: (levelIndex: number) => void;
   foxCount: number;
   totalFoxes: number;
   lives: number;
@@ -15,6 +18,9 @@ interface GameHeaderProps {
 }
 
 export const GameHeader: React.FC<GameHeaderProps> = ({
+  currentLevel,
+  totalLevels,
+  onSelectLevel,
   foxCount,
   totalFoxes,
   lives,
@@ -26,14 +32,16 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
   onHint,
 }) => {
   return (
-    <header className="w-full max-w-2xl mx-auto mb-4 flex flex-col items-center select-none">
+    <header className="w-full max-w-2xl mx-auto mb-3 flex flex-col items-center select-none">
       {/* Top Habitat Banner */}
-      <div className="flex items-center justify-between w-full px-2 sm:px-4 py-2 border-b border-slate-800/80 mb-3 text-xs">
+      <div className="flex items-center justify-between w-full px-2 sm:px-4 py-2 border-b border-slate-800/80 mb-2 text-xs">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-slate-400 font-medium">Sample Puzzle</span>
+          <span className="text-slate-300 font-semibold">
+            第 {currentLevel + 1} 關 / 共 {totalLevels} 關
+          </span>
           <span className="text-slate-600">·</span>
-          <span className="text-slate-300 font-semibold">7×7 顏色區域</span>
+          <span className="text-slate-400 font-medium">7×7 顏色區域</span>
         </div>
 
         {/* Global Action Icons */}
@@ -58,7 +66,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
       </div>
 
       {/* Main Title & Monster Identifier */}
-      <div className="text-center mb-3">
+      <div className="text-center mb-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] font-semibold mb-1">
           <FoxIcon size={18} />
           <span>三尾狐拼圖 · Three-Tailed Fox</span>
@@ -69,6 +77,26 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
         <p className="text-xs text-slate-400 mt-0.5">
           每行、每列、每個顏色區域各藏 1 隻三尾狐，且任意兩隻不可相鄰
         </p>
+      </div>
+
+      {/* Level Selector Buttons */}
+      <div className="flex items-center gap-1 p-1 bg-slate-900/90 rounded-xl border border-slate-800 shadow-sm mb-2.5">
+        {Array.from({ length: totalLevels }, (_, idx) => {
+          const isCurrent = idx === currentLevel;
+          return (
+            <button
+              key={`level-tab-${idx}`}
+              onClick={() => onSelectLevel(idx)}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                isCurrent
+                  ? 'bg-amber-500 text-slate-950 shadow-sm scale-102'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/70'
+              }`}
+            >
+              關卡 {idx + 1}
+            </button>
+          );
+        })}
       </div>
 
       {/* Primary Status & Quick Actions Bar */}

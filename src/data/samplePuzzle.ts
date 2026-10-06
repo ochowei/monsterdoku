@@ -1,6 +1,6 @@
 import { ColorRegion, PuzzleData } from '../types/puzzle';
 
-export const SAMPLE_REGIONS: ColorRegion[] = [
+export const COLOR_REGIONS_7: ColorRegion[] = [
   {
     id: 0,
     name: '綠色',
@@ -45,7 +45,10 @@ export const SAMPLE_REGIONS: ColorRegion[] = [
   },
 ];
 
-const RAW_GRID: number[][] = [
+// ----------------------------------------------------
+// LEVEL 1: Verified 100% Unique Solution [0, 3, 5, 1, 6, 4, 2]
+// ----------------------------------------------------
+const GRID_L1: number[][] = [
   [0, 0, 0, 0, 1, 1, 1],
   [0, 0, 1, 1, 1, 1, 2],
   [0, 3, 1, 1, 1, 2, 2],
@@ -54,32 +57,70 @@ const RAW_GRID: number[][] = [
   [0, 3, 3, 3, 5, 5, 4],
   [6, 6, 6, 6, 6, 5, 5],
 ];
+export const SOLUTION_L1: number[] = [0, 3, 5, 1, 6, 4, 2];
 
-// Verified 100% unique solution: [row] -> col
-// row 0: col 0 (region 0: Green)
-// row 1: col 3 (region 1: Teal)
-// row 2: col 5 (region 2: Blue)
-// row 3: col 1 (region 3: Orange)
-// row 4: col 6 (region 4: Purple)
-// row 5: col 4 (region 5: Red)
-// row 6: col 2 (region 6: Gray)
-export const SAMPLE_SOLUTION: number[] = [0, 3, 5, 1, 6, 4, 2];
+// ----------------------------------------------------
+// LEVEL 2: Verified 100% Unique Solution [0, 6, 1, 3, 5, 2, 4]
+// ----------------------------------------------------
+const GRID_L2: number[][] = [
+  [0, 0, 0, 0, 0, 0, 1],
+  [0, 0, 0, 1, 0, 0, 1],
+  [0, 2, 1, 1, 1, 1, 1],
+  [2, 2, 1, 3, 1, 1, 1],
+  [2, 5, 5, 3, 4, 4, 4],
+  [2, 5, 5, 3, 6, 4, 6],
+  [5, 5, 5, 3, 6, 6, 6],
+];
+export const SOLUTION_L2: number[] = [0, 6, 1, 3, 5, 2, 4];
 
-export const SAMPLE_PUZZLE: PuzzleData = {
-  id: 'sample-01',
-  title: '三尾狐拼圖',
-  titleEn: 'Three-Tailed Fox Puzzle',
-  monsterName: '三尾狐',
-  monsterNameEn: 'Three-Tailed Fox',
-  size: 7,
-  regions: SAMPLE_REGIONS,
-  cells: RAW_GRID.map((row, r) =>
-    row.map((regionId, c) => ({
-      row: r,
-      col: c,
-      regionId,
-      active: true,
-    }))
-  ),
-  solution: SAMPLE_SOLUTION,
-};
+// ----------------------------------------------------
+// LEVEL 3: Verified 100% Unique Solution [6, 0, 5, 2, 4, 1, 3]
+// ----------------------------------------------------
+const GRID_L3: number[][] = [
+  [1, 1, 1, 0, 0, 0, 0],
+  [1, 1, 2, 2, 0, 0, 0],
+  [1, 3, 2, 2, 0, 2, 0],
+  [3, 3, 3, 2, 2, 2, 2],
+  [3, 5, 4, 4, 4, 4, 2],
+  [3, 5, 4, 6, 6, 4, 2],
+  [5, 5, 6, 6, 4, 4, 2],
+];
+export const SOLUTION_L3: number[] = [6, 0, 5, 2, 4, 1, 3];
+
+function createPuzzle(
+  id: string,
+  levelNum: number,
+  title: string,
+  grid: number[][],
+  solution: number[]
+): PuzzleData {
+  return {
+    id,
+    title,
+    titleEn: `Level ${levelNum}`,
+    monsterName: '三尾狐',
+    monsterNameEn: 'Three-Tailed Fox',
+    size: 7,
+    regions: COLOR_REGIONS_7,
+    cells: grid.map((row, r) =>
+      row.map((regionId, c) => ({
+        row: r,
+        col: c,
+        regionId,
+        active: true,
+      }))
+    ),
+    solution,
+  };
+}
+
+export const PUZZLES: PuzzleData[] = [
+  createPuzzle('level-1', 1, '關卡 1', GRID_L1, SOLUTION_L1),
+  createPuzzle('level-2', 2, '關卡 2', GRID_L2, SOLUTION_L2),
+  createPuzzle('level-3', 3, '關卡 3', GRID_L3, SOLUTION_L3),
+];
+
+// Backwards compatibility export
+export const SAMPLE_PUZZLE = PUZZLES[0];
+export const SAMPLE_SOLUTION = SOLUTION_L1;
+export const SAMPLE_REGIONS = COLOR_REGIONS_7;

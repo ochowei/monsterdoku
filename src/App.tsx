@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { SAMPLE_PUZZLE } from './data/samplePuzzle';
+import { PUZZLES } from './data/samplePuzzle';
 import { CellState, ConflictInfo } from './types/puzzle';
 import { computeConflicts, checkVictory, getHintAction, evaluateBoard } from './utils/puzzleValidation';
 import { sounds } from './utils/audio';
@@ -18,7 +18,8 @@ import { VictoryOverlay } from './components/VictoryOverlay';
 import { GameOverOverlay } from './components/GameOverOverlay';
 
 export default function App() {
-  const puzzle = SAMPLE_PUZZLE;
+  const [levelIndex, setLevelIndex] = useState<number>(0);
+  const puzzle = PUZZLES[levelIndex];
   const size = puzzle.size;
 
   // 7x7 Grid state
@@ -34,6 +35,29 @@ export default function App() {
   const [hintBanner, setHintBanner] = useState<string | null>(null);
   const [highlightedRegionId, setHighlightedRegionId] = useState<number | null>(null);
   const [showFeedbackCard, setShowFeedbackCard] = useState(false);
+
+  const [lives, setLives] = useState<number>(3);
+  const [isGameOverOpen, setIsGameOverOpen] = useState(false);
+  const MAX_LIVES = 3;
+
+  // Level selection handler
+  const handleSelectLevel = useCallback((newIndex: number) => {
+    setLevelIndex(newIndex);
+    setGridState(Array.from({ length: PUZZLES[newIndex].size }, () => Array(PUZZLES[newIndex].size).fill('empty')));
+    setLives(3);
+    setHintCell(null);
+    setHintBanner(null);
+    setShowFeedbackCard(false);
+    setIsGameOverOpen(false);
+    setIsVictoryOpen(false);
+    sounds.playClear();
+  }, []);
+
+  // Advance to next level
+  const handleNextLevel = useCallback(() => {
+    const nextIdx = (levelIndex + 1) % PUZZLES.length;
+    handleSelectLevel(nextIdx);
+  }, [levelIndex, handleSelectLevel]);
 
   // Compute conflicts dynamically
   const conflicts: ConflictInfo = useMemo(
@@ -57,10 +81,6 @@ export default function App() {
     }
     return count;
   }, [gridState, size]);
-
-  const [lives, setLives] = useState<number>(3);
-  const [isGameOverOpen, setIsGameOverOpen] = useState(false);
-  const MAX_LIVES = 3;
 
   // Handle cell click (Primary interaction)
   const handleCellClick = useCallback(
@@ -217,6 +237,9 @@ export default function App() {
       <main className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center justify-center flex-grow">
         {/* Game Header */}
         <GameHeader
+          currentLevel={levelIndex}
+          totalLevels={PUZZLES.length}
+          onSelectLevel={handleSelectLevel}
           foxCount={foxCount}
           totalFoxes={size}
           lives={lives}
@@ -283,7 +306,10 @@ export default function App() {
 
       <VictoryOverlay
         isOpen={isVictoryOpen}
+        currentLevel={levelIndex}
+        totalLevels={PUZZLES.length}
         onPlayAgain={handleReset}
+        onNextLevel={handleNextLevel}
       />
 
       <GameOverOverlay
