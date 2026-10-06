@@ -53,6 +53,9 @@ export default function App() {
     rect?: DOMRect;
   } | null>(null);
 
+  // Set of coordinates ("row,col") where placement failed and are permanently locked as ❌
+  const [lockedCrosses, setLockedCrosses] = useState<Set<string>>(() => new Set());
+
   const [isRulesOpen, setIsRulesOpen] = useState(false);
   const [isVictoryOpen, setIsVictoryOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -80,6 +83,7 @@ export default function App() {
     setLevelIndex(newIndex);
     setGridState(Array.from({ length: PUZZLES[newIndex].size }, () => Array(PUZZLES[newIndex].size).fill('empty')));
     setLives(3);
+    setLockedCrosses(new Set());
     setPendingPlacement(null);
     setIsDragging(false);
     setDragTargetState(null);
@@ -131,8 +135,8 @@ export default function App() {
         return;
       }
 
-      // Once correctly placed, Fox cells are locked and cannot be canceled (prevents misclicking)
-      if (gridState[row][col] === 'fox') {
+      // Once correctly placed (fox) or locked as mistake (cross), cells cannot be clicked or modified
+      if (gridState[row][col] === 'fox' || lockedCrosses.has(`${row},${col}`)) {
         return;
       }
 
@@ -164,7 +168,7 @@ export default function App() {
         // Fast place Fox!
         const isCorrect = puzzle.solution[row] === col;
         if (!isCorrect) {
-          // Mistake! Deduct 1 HP
+          // Mistake! Deduct 1 HP and lock cell permanently as ❌
           setLives((prevLives) => {
             const nextLives = Math.max(0, prevLives - 1);
             if (nextLives === 0) {
@@ -176,6 +180,12 @@ export default function App() {
             return nextLives;
           });
 
+          setLockedCrosses((prev) => {
+            const next = new Set(prev);
+            next.add(`${row},${col}`);
+            return next;
+          });
+
           // Mark this cell as cross so player knows it's excluded
           setGridState((prev) => {
             const next = prev.map((r) => [...r]);
@@ -183,7 +193,7 @@ export default function App() {
             return next;
           });
           sounds.playMistake();
-          setHintBanner(`⚠️ 快速放置錯誤！失去 1 滴血！該格已排除為 ❌。`);
+          setHintBanner(`⚠️ 快速放置錯誤！失去 1 滴血！該格已鎖定排除為 ❌。`);
         } else {
           // Correct!
           setGridState((prev) => {
@@ -218,7 +228,7 @@ export default function App() {
         sounds.playClear();
       }
     },
-    [gridState, lives, placementMode, puzzle]
+    [gridState, lives, lockedCrosses, placementMode, puzzle]
   );
 
   // Drag over other cells while left mouse button is pressed
@@ -228,8 +238,8 @@ export default function App() {
       if (lives <= 0) return;
 
       setGridState((prev) => {
-        // Protect already confirmed foxes from being accidentally overwritten when painting crosses
-        if (prev[row][col] === 'fox') return prev;
+        // Protect already confirmed foxes and locked crosses from being overwritten when dragging crosses
+        if (prev[row][col] === 'fox' || lockedCrosses.has(`${row},${col}`)) return prev;
         if (prev[row][col] === dragTargetState) return prev;
         const next = prev.map((r) => [...r]);
         next[row][col] = dragTargetState;
@@ -242,7 +252,7 @@ export default function App() {
         sounds.playClear();
       }
     },
-    [isDragging, dragTargetState, lives]
+    [isDragging, dragTargetState, lives, lockedCrosses]
   );
 
   // Right Click: preview virtual (semi-transparent) Fox and popup confirmation modal
@@ -254,8 +264,8 @@ export default function App() {
         return;
       }
 
-      // Once correctly placed, Fox cells are locked and cannot be canceled
-      if (gridState[row][col] === 'fox') {
+      // Once correctly placed (fox) or locked as mistake (cross), cells cannot be opened for placement
+      if (gridState[row][col] === 'fox' || lockedCrosses.has(`${row},${col}`)) {
         return;
       }
 
@@ -266,7 +276,7 @@ export default function App() {
       setPendingPlacement({ row, col, rect });
       sounds.playTap();
     },
-    [gridState, lives]
+    [gridState, lives, lockedCrosses]
   );
 
   // Confirmation modal: confirm placing Fox at pending coordinates
@@ -277,7 +287,7 @@ export default function App() {
 
     const isCorrect = puzzle.solution[row] === col;
     if (!isCorrect) {
-      // Mistake! Deduct 1 HP
+      // Mistake! Deduct 1 HP and lock cell permanently as ❌
       setLives((prevLives) => {
         const nextLives = Math.max(0, prevLives - 1);
         if (nextLives === 0) {
@@ -289,6 +299,12 @@ export default function App() {
         return nextLives;
       });
 
+      setLockedCrosses((prev) => {
+        const next = new Set(prev);
+        next.add(`${row},${col}`);
+        return next;
+      });
+
       // Mark this cell as cross so player knows it's excluded
       setGridState((prev) => {
         const next = prev.map((r) => [...r]);
@@ -296,7 +312,7 @@ export default function App() {
         return next;
       });
       sounds.playMistake();
-      setHintBanner(`⚠️ 放置錯誤！失去 1 滴血！該格已排除為 ❌。`);
+      setHintBanner(`⚠️ 放置錯誤！失去 1 滴血！該格已鎖定排除為 ❌。`);
     } else {
       // Correct!
       setGridState((prev) => {
@@ -334,6 +350,7 @@ export default function App() {
   const handleReset = useCallback(() => {
     setGridState(Array.from({ length: size }, () => Array(size).fill('empty')));
     setLives(MAX_LIVES);
+    setLockedCrosses(new Set());
     setPendingPlacement(null);
     setIsDragging(false);
     setDragTargetState(null);
@@ -402,6 +419,7 @@ export default function App() {
           conflicts={conflicts}
           hintCell={hintCell}
           ghostCell={pendingPlacement}
+          lockedCrosses={lockedCrosses}
           onCellMouseDown={handleCellMouseDown}
           onCellMouseEnter={handleCellMouseEnter}
           onCellContextMenu={handleCellContextMenu}

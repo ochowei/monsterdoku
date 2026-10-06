@@ -11,6 +11,7 @@ interface PuzzleCellProps {
   isConflicted: boolean;
   isHinted: boolean;
   isGhost?: boolean;
+  isLockedCross?: boolean;
   onMouseDown: (e: React.MouseEvent, row: number, col: number) => void;
   onMouseEnter: (row: number, col: number) => void;
   onContextMenu: (e: React.MouseEvent, row: number, col: number) => void;
@@ -25,10 +26,13 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
   isConflicted,
   isHinted,
   isGhost = false,
+  isLockedCross = false,
   onMouseDown,
   onMouseEnter,
   onContextMenu,
 }) => {
+  const isLocked = state === 'fox' || isLockedCross;
+
   return (
     <button
       type="button"
@@ -41,7 +45,7 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
       }}
       className={`
         relative flex items-center justify-center aspect-square select-none outline-none
-        transition-colors duration-150 ${state === 'fox' ? 'cursor-default' : 'cursor-pointer hover:brightness-110'}
+        transition-colors duration-150 ${isLocked ? 'cursor-default' : 'cursor-pointer hover:brightness-110'}
         focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:z-20
         ${borderClasses}
         ${
@@ -99,18 +103,36 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
 
       {/* State Display: Cross ❌ */}
       {state === 'cross' && !isGhost && (
-        <div className="relative z-10 flex items-center justify-center text-slate-950/85 hover:text-slate-950 transition-transform active:scale-90">
+        <div
+          className={`relative z-10 flex items-center justify-center transition-transform ${
+            isLockedCross
+              ? 'text-red-700 filter drop-shadow-[0_0_6px_rgba(220,38,38,0.7)]'
+              : 'text-slate-950/85 hover:text-slate-950 active:scale-90'
+          }`}
+        >
           <svg
-            className="w-5 h-5 sm:w-6 sm:h-6 drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]"
+            className={`w-5 h-5 sm:w-6 sm:h-6 ${
+              isLockedCross
+                ? 'drop-shadow-[0_0_4px_rgba(239,68,68,0.8)]'
+                : 'drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]'
+            }`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="3.2"
+            strokeWidth={isLockedCross ? '3.8' : '3.2'}
             strokeLinecap="round"
           >
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
+          {isLockedCross && (
+            <span
+              className="absolute -bottom-1 -right-1 w-3 h-3 bg-red-600 rounded-full text-[8px] font-bold text-white flex items-center justify-center shadow-md ring-1 ring-slate-950"
+              title="放錯已確認排除，不可重複放置"
+            >
+              ✕
+            </span>
+          )}
         </div>
       )}
 

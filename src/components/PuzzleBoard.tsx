@@ -8,6 +8,7 @@ interface PuzzleBoardProps {
   conflicts: ConflictInfo;
   hintCell: { row: number; col: number } | null;
   ghostCell: { row: number; col: number } | null;
+  lockedCrosses: Set<string>;
   onCellMouseDown: (e: React.MouseEvent, row: number, col: number) => void;
   onCellMouseEnter: (row: number, col: number) => void;
   onCellContextMenu: (e: React.MouseEvent, row: number, col: number) => void;
@@ -19,6 +20,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   conflicts,
   hintCell,
   ghostCell,
+  lockedCrosses,
   onCellMouseDown,
   onCellMouseEnter,
   onCellContextMenu,
@@ -190,6 +192,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                   hintCell !== null && hintCell.row === r && hintCell.col === c;
                 const isGhost =
                   ghostCell !== null && ghostCell.row === r && ghostCell.col === c;
+                const isLockedCross = lockedCrosses.has(`${r},${c}`);
 
                 return (
                   <PuzzleCell
@@ -202,6 +205,7 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                     isConflicted={isConflicted}
                     isHinted={isHinted}
                     isGhost={isGhost}
+                    isLockedCross={isLockedCross}
                     onMouseDown={onCellMouseDown}
                     onMouseEnter={onCellMouseEnter}
                     onContextMenu={onCellContextMenu}
