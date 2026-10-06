@@ -11,11 +11,12 @@ import { sounds } from './utils/audio';
 import { GameHeader } from './components/GameHeader';
 import { PuzzleBoard } from './components/PuzzleBoard';
 import { ColorStatusLegend } from './components/ColorStatusLegend';
-import { InteractionTools, InputMode } from './components/InteractionTools';
+import { InteractionTools } from './components/InteractionTools';
 import { ValidationStatusHUD } from './components/ValidationStatusHUD';
 import { HowToPlayModal } from './components/HowToPlayModal';
 import { VictoryOverlay } from './components/VictoryOverlay';
 import { GameOverOverlay } from './components/GameOverOverlay';
+import { PlacementConfirmModal } from './components/PlacementConfirmModal';
 
 export default function App() {
   const [levelIndex, setLevelIndex] = useState<number>(0);
@@ -27,7 +28,17 @@ export default function App() {
     Array.from({ length: size }, () => Array(size).fill('empty'))
   );
 
-  const [inputMode, setInputMode] = useState<InputMode>('cycle');
+  // Dragging state for left-click exclusion marking
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragTargetState, setDragTargetState] = useState<CellState | null>(null);
+
+  // Right-click pending placement (ghost fox + confirmation dialog)
+  const [pendingPlacement, setPendingPlacement] = useState<{
+    row: number;
+    col: number;
+    rect?: DOMRect;
+  } | null>(null);
+
   const [isRulesOpen, setIsRulesOpen] = useState(false);
   const [isVictoryOpen, setIsVictoryOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -40,11 +51,24 @@ export default function App() {
   const [isGameOverOpen, setIsGameOverOpen] = useState(false);
   const MAX_LIVES = 3;
 
+  // Global mouseup listener to end dragging anywhere on screen
+  useEffect(() => {
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setDragTargetState(null);
+    };
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => window.removeEventListener('mouseup', handleMouseUp);
+  }, []);
+
   // Level selection handler
   const handleSelectLevel = useCallback((newIndex: number) => {
     setLevelIndex(newIndex);
     setGridState(Array.from({ length: PUZZLES[newIndex].size }, () => Array(PUZZLES[newIndex].size).fill('empty')));
     setLives(3);
+    setPendingPlacement(null);
+    setIsDragging(false);
+    setDragTargetState(null);
     setHintCell(null);
     setHintBanner(null);
     setShowFeedbackCard(false);
@@ -82,96 +106,140 @@ export default function App() {
     return count;
   }, [gridState, size]);
 
-  // Handle cell click (Primary interaction)
-  const handleCellClick = useCallback(
-    (row: number, col: number) => {
+  // Left Mouse Down: single click or drag start to mark "排除" (❌)
+  const handleCellMouseDown = useCallback(
+    (e: React.MouseEvent, row: number, col: number) => {
+      // Left click only (e.button === 0)
+      if (e.button !== 0) return;
+
       if (lives <= 0) {
         setIsGameOverOpen(true);
         return;
       }
 
       setHintCell(null);
+      const current = gridState[row][col];
+      // If cell is already cross, toggle back to empty
+      // If empty or fox, mark as cross (排除)
+      const nextState: CellState = current === 'cross' ? 'empty' : 'cross';
+
+      setDragTargetState(nextState);
+      setIsDragging(true);
+
       setGridState((prev) => {
         const next = prev.map((r) => [...r]);
-        const current = next[row][col];
-        let targetState: CellState = 'empty';
-
-        if (inputMode === 'cycle') {
-          // Empty -> Cross -> Fox -> Empty
-          if (current === 'empty') targetState = 'cross';
-          else if (current === 'cross') targetState = 'fox';
-          else targetState = 'empty';
-        } else if (inputMode === 'fox') {
-          targetState = current === 'fox' ? 'empty' : 'fox';
-        } else if (inputMode === 'cross') {
-          targetState = current === 'cross' ? 'empty' : 'cross';
-        }
-
-        // If placing a Fox, validate correctness to prevent brute-forcing!
-        if (targetState === 'fox') {
-          const isCorrect = puzzle.solution[row] === col;
-
-          if (!isCorrect) {
-            // Mistake: lose 1 HP!
-            setLives((prevLives) => {
-              const nextLives = Math.max(0, prevLives - 1);
-              if (nextLives === 0) {
-                setTimeout(() => {
-                  setIsGameOverOpen(true);
-                  sounds.playGameOver();
-                }, 300);
-              }
-              return nextLives;
-            });
-
-            // Mark this cell as cross so player knows it's excluded
-            next[row][col] = 'cross';
-            sounds.playMistake();
-            setHintBanner(`⚠️ 放置錯誤！失去 1 滴血！該格已排除為 ❌。`);
-            return next;
-          }
-
-          // Correct Fox placement!
-          next[row][col] = 'fox';
-          sounds.playFoxPlace();
-          return next;
-        }
-
-        // Normal marking of Cross or Empty
-        next[row][col] = targetState;
-        if (targetState === 'cross') {
-          sounds.playTap();
-        } else {
-          sounds.playClear();
-        }
-
+        next[row][col] = nextState;
         return next;
       });
+
+      if (nextState === 'cross') {
+        sounds.playTap();
+      } else {
+        sounds.playClear();
+      }
     },
-    [inputMode, lives, puzzle]
+    [gridState, lives]
   );
 
-  // Handle context menu / right click (Convenient quick-X toggle)
+  // Drag over other cells while left mouse button is pressed
+  const handleCellMouseEnter = useCallback(
+    (row: number, col: number) => {
+      if (!isDragging || dragTargetState === null) return;
+      if (lives <= 0) return;
+
+      setGridState((prev) => {
+        // Protect already confirmed foxes from being accidentally overwritten when painting crosses
+        if (prev[row][col] === 'fox' && dragTargetState === 'cross') return prev;
+        if (prev[row][col] === dragTargetState) return prev;
+        const next = prev.map((r) => [...r]);
+        next[row][col] = dragTargetState;
+        return next;
+      });
+
+      if (dragTargetState === 'cross') {
+        sounds.playTap();
+      } else {
+        sounds.playClear();
+      }
+    },
+    [isDragging, dragTargetState, lives]
+  );
+
+  // Right Click: preview virtual (semi-transparent) Fox and popup confirmation modal
   const handleCellContextMenu = useCallback(
     (e: React.MouseEvent, row: number, col: number) => {
       e.preventDefault();
+      if (lives <= 0) {
+        setIsGameOverOpen(true);
+        return;
+      }
+
       setHintCell(null);
+
+      // If already a fox, right clicking toggles it off
+      if (gridState[row][col] === 'fox') {
+        setGridState((prev) => {
+          const next = prev.map((r) => [...r]);
+          next[row][col] = 'empty';
+          return next;
+        });
+        sounds.playClear();
+        return;
+      }
+
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      // Show virtual ghost preview and open confirmation dialog
+      setPendingPlacement({ row, col, rect });
+      sounds.playTap();
+    },
+    [gridState, lives]
+  );
+
+  // Confirmation modal: confirm placing Fox at pending coordinates
+  const handleConfirmPlacement = useCallback(() => {
+    if (!pendingPlacement) return;
+    const { row, col } = pendingPlacement;
+    setPendingPlacement(null);
+
+    const isCorrect = puzzle.solution[row] === col;
+    if (!isCorrect) {
+      // Mistake! Deduct 1 HP
+      setLives((prevLives) => {
+        const nextLives = Math.max(0, prevLives - 1);
+        if (nextLives === 0) {
+          setTimeout(() => {
+            setIsGameOverOpen(true);
+            sounds.playGameOver();
+          }, 300);
+        }
+        return nextLives;
+      });
+
+      // Mark this cell as cross so player knows it's excluded
       setGridState((prev) => {
         const next = prev.map((r) => [...r]);
-        const current = next[row][col];
-        const newState: CellState = current === 'cross' ? 'empty' : 'cross';
-        next[row][col] = newState;
-
-        if (newState === 'cross') {
-          sounds.playTap();
-        } else {
-          sounds.playClear();
-        }
+        next[row][col] = 'cross';
         return next;
       });
-    },
-    []
-  );
+      sounds.playMistake();
+      setHintBanner(`⚠️ 放置錯誤！失去 1 滴血！該格已排除為 ❌。`);
+    } else {
+      // Correct!
+      setGridState((prev) => {
+        const next = prev.map((r) => [...r]);
+        next[row][col] = 'fox';
+        return next;
+      });
+      sounds.playFoxPlace();
+      setHintBanner(null);
+    }
+  }, [pendingPlacement, puzzle]);
+
+  // Confirmation modal: cancel placing Fox
+  const handleCancelPlacement = useCallback(() => {
+    setPendingPlacement(null);
+    sounds.playClear();
+  }, []);
 
   // Check victory condition whenever gridState changes
   useEffect(() => {
@@ -192,6 +260,9 @@ export default function App() {
   const handleReset = useCallback(() => {
     setGridState(Array.from({ length: size }, () => Array(size).fill('empty')));
     setLives(MAX_LIVES);
+    setPendingPlacement(null);
+    setIsDragging(false);
+    setDragTargetState(null);
     setHintCell(null);
     setHintBanner(null);
     setShowFeedbackCard(false);
@@ -256,7 +327,9 @@ export default function App() {
           gridState={gridState}
           conflicts={conflicts}
           hintCell={hintCell}
-          onCellClick={handleCellClick}
+          ghostCell={pendingPlacement}
+          onCellMouseDown={handleCellMouseDown}
+          onCellMouseEnter={handleCellMouseEnter}
           onCellContextMenu={handleCellContextMenu}
         />
 
@@ -268,10 +341,8 @@ export default function App() {
           onCloseFeedbackCard={() => setShowFeedbackCard(false)}
         />
 
-        {/* Input Mode Controls & Hint Feedback */}
+        {/* Dual Mouse Controls Guide & Hint Feedback */}
         <InteractionTools
-          mode={inputMode}
-          onChangeMode={setInputMode}
           hintBanner={hintBanner}
           onClearHint={() => setHintBanner(null)}
         />
@@ -315,6 +386,20 @@ export default function App() {
         isOpen={isGameOverOpen}
         onTryAgain={handleReset}
       />
+
+      {/* Right-click Virtual Fox Placement Confirmation Modal */}
+      {pendingPlacement && (
+        <PlacementConfirmModal
+          isOpen={!!pendingPlacement}
+          row={pendingPlacement.row}
+          col={pendingPlacement.col}
+          anchorRect={pendingPlacement.rect}
+          region={puzzle.regions.find((r) => r.id === puzzle.cells[pendingPlacement.row][pendingPlacement.col].regionId)!}
+          lives={lives}
+          onConfirm={handleConfirmPlacement}
+          onCancel={handleCancelPlacement}
+        />
+      )}
     </div>
   );
 }

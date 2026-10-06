@@ -10,8 +10,10 @@ interface PuzzleCellProps {
   borderClasses: string;
   isConflicted: boolean;
   isHinted: boolean;
-  onCellClick: (row: number, col: number) => void;
-  onCellContextMenu?: (e: React.MouseEvent, row: number, col: number) => void;
+  isGhost?: boolean;
+  onMouseDown: (e: React.MouseEvent, row: number, col: number) => void;
+  onMouseEnter: (row: number, col: number) => void;
+  onContextMenu: (e: React.MouseEvent, row: number, col: number) => void;
 }
 
 export const PuzzleCell: React.FC<PuzzleCellProps> = ({
@@ -22,28 +24,17 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
   borderClasses,
   isConflicted,
   isHinted,
-  onCellClick,
-  onCellContextMenu,
+  isGhost = false,
+  onMouseDown,
+  onMouseEnter,
+  onContextMenu,
 }) => {
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    onCellClick(row, col);
-  };
-
-  const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (onCellContextMenu) {
-      onCellContextMenu(e, row, col);
-    } else {
-      onCellClick(row, col);
-    }
-  };
-
   return (
     <button
       type="button"
-      onClick={handleClick}
-      onContextMenu={handleContextMenu}
+      onMouseDown={(e) => onMouseDown(e, row, col)}
+      onMouseEnter={() => onMouseEnter(row, col)}
+      onContextMenu={(e) => onContextMenu(e, row, col)}
       aria-label={`Cell Row ${row + 1}, Col ${col + 1}, ${region.name}: ${state}`}
       style={{
         backgroundColor: region.color,
@@ -61,6 +52,11 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
         ${
           isHinted
             ? 'ring-2 ring-amber-400 ring-inset shadow-[0_0_16px_rgba(251,191,36,0.5)] z-10'
+            : ''
+        }
+        ${
+          isGhost
+            ? 'ring-2 ring-amber-300 ring-inset shadow-[0_0_12px_rgba(251,191,36,0.6)] z-10'
             : ''
         }
       `}
@@ -84,8 +80,18 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
         </div>
       )}
 
+      {/* Ghost Virtual Fox Preview (Right-click preview) */}
+      {isGhost && state !== 'fox' && (
+        <div className="relative z-10 opacity-60 scale-105 animate-pulse filter drop-shadow-[0_0_8px_rgba(251,191,36,0.9)] pointer-events-none">
+          <FoxIcon size={46} animated={false} />
+          <span className="absolute -bottom-1 -right-1 px-1 py-0.2 bg-amber-500 text-slate-950 text-[8px] font-bold rounded shadow">
+            預覽
+          </span>
+        </div>
+      )}
+
       {/* State Display: Cross ❌ */}
-      {state === 'cross' && (
+      {state === 'cross' && !isGhost && (
         <div className="relative z-10 flex items-center justify-center text-slate-950/85 hover:text-slate-950 transition-transform active:scale-90">
           <svg
             className="w-5 h-5 sm:w-6 sm:h-6 drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]"
@@ -102,7 +108,7 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
       )}
 
       {/* Hover visual affordance if empty */}
-      {state === 'empty' && (
+      {state === 'empty' && !isGhost && (
         <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
           <div className="w-2 h-2 rounded-full bg-slate-950/25 ring-2 ring-white/40" />
         </div>

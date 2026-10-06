@@ -7,8 +7,10 @@ interface PuzzleBoardProps {
   gridState: CellState[][];
   conflicts: ConflictInfo;
   hintCell: { row: number; col: number } | null;
-  onCellClick: (row: number, col: number) => void;
-  onCellContextMenu?: (e: React.MouseEvent, row: number, col: number) => void;
+  ghostCell: { row: number; col: number } | null;
+  onCellMouseDown: (e: React.MouseEvent, row: number, col: number) => void;
+  onCellMouseEnter: (row: number, col: number) => void;
+  onCellContextMenu: (e: React.MouseEvent, row: number, col: number) => void;
 }
 
 export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
@@ -16,7 +18,9 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   gridState,
   conflicts,
   hintCell,
-  onCellClick,
+  ghostCell,
+  onCellMouseDown,
+  onCellMouseEnter,
   onCellContextMenu,
 }) => {
   const size = puzzle.size;
@@ -184,6 +188,8 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                 const isConflicted = conflicts.conflictedCells.has(`${r},${c}`);
                 const isHinted =
                   hintCell !== null && hintCell.row === r && hintCell.col === c;
+                const isGhost =
+                  ghostCell !== null && ghostCell.row === r && ghostCell.col === c;
 
                 return (
                   <PuzzleCell
@@ -195,8 +201,10 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                     borderClasses={borderClasses}
                     isConflicted={isConflicted}
                     isHinted={isHinted}
-                    onCellClick={onCellClick}
-                    onCellContextMenu={onCellContextMenu}
+                    isGhost={isGhost}
+                    onMouseDown={onCellMouseDown}
+                    onMouseEnter={onCellMouseEnter}
+                    onContextMenu={onCellContextMenu}
                   />
                 );
               })
