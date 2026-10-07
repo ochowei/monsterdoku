@@ -80,6 +80,8 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
                     title = '第 1 關 · 5×5 (Very Easy)';
                   } else if (idx === 1) {
                     title = '第 2 關 · 5×5 (Easy)';
+                  } else if (idx === 2) {
+                    title = '第 3 關 · 6×6 (Easy)';
                   } else {
                     title = `第 ${idx + 1} 關 · 7×7`;
                   }

@@ -46,6 +46,7 @@ export const COLOR_REGIONS_7: ColorRegion[] = [
 ];
 
 export const COLOR_REGIONS_5: ColorRegion[] = COLOR_REGIONS_7.slice(0, 5);
+export const COLOR_REGIONS_6: ColorRegion[] = COLOR_REGIONS_7.slice(0, 6);
 
 // ----------------------------------------------------
 // TUTORIAL 1 (5x5 Guided): Verified 100% Unique Solution [0, 3, 1, 4, 2]
@@ -347,7 +348,9 @@ function createPuzzle(
   }
 ): PuzzleData {
   const size = options?.size ?? grid.length;
-  const regions = options?.regions ?? (size === 5 ? COLOR_REGIONS_5 : COLOR_REGIONS_7);
+  const regions =
+    options?.regions ??
+    (size === 5 ? COLOR_REGIONS_5 : size === 6 ? COLOR_REGIONS_6 : COLOR_REGIONS_7);
 
   return {
     id,
@@ -403,6 +406,36 @@ export const CAMPAIGN_L2_PUZZLE = createPuzzle(
   }
 );
 
+// ----------------------------------------------------
+// CAMPAIGN LEVEL 3 (6x6 Easy): Verified 100% Unique Solution [3, 0, 5, 1, 4, 2]
+// First 6x6 board: introduces board expansion without sudden logic jump.
+// Clear opening with 1-2 step deduction (line-region interaction at top-left).
+// ----------------------------------------------------
+export const GRID_CAMPAIGN_L3: number[][] = [
+  [1, 0, 0, 0, 0, 2],
+  [1, 2, 2, 2, 2, 2],
+  [3, 3, 2, 4, 4, 2],
+  [3, 3, 5, 4, 4, 2],
+  [3, 5, 5, 4, 4, 4],
+  [3, 5, 5, 4, 4, 4],
+];
+export const SOLUTION_CAMPAIGN_L3: number[] = [3, 0, 5, 1, 4, 2];
+
+export const CAMPAIGN_L3_PUZZLE = createPuzzle(
+  'campaign-3',
+  3,
+  '關卡 3 · 6×6 (Easy)',
+  GRID_CAMPAIGN_L3,
+  SOLUTION_CAMPAIGN_L3,
+  {
+    size: 6,
+    regions: COLOR_REGIONS_6,
+    difficulty: 'easy',
+    category: 'campaign',
+    description: '更大的棲地，熟悉的推理。首次踏入 6×6 棋盤，運用掌握的基本排除技巧探索更寬闊的都市區域。',
+  }
+);
+
 export const PUZZLE_5X5_TEST = createPuzzle(
   'level-5x5-test',
   99,
@@ -419,19 +452,19 @@ export const PUZZLE_5X5_TEST = createPuzzle(
 );
 
 export const PUZZLES_7X7: PuzzleData[] = [
-  createPuzzle('level-1', 3, '關卡 3 (7×7)', GRID_L1, SOLUTION_L1, {
+  createPuzzle('level-1', 4, '關卡 4 (7×7)', GRID_L1, SOLUTION_L1, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'easy',
     category: 'campaign',
   }),
-  createPuzzle('level-2', 4, '關卡 4 (7×7)', GRID_L2, SOLUTION_L2, {
+  createPuzzle('level-2', 5, '關卡 5 (7×7)', GRID_L2, SOLUTION_L2, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'medium',
     category: 'campaign',
   }),
-  createPuzzle('level-3', 5, '關卡 5 (7×7)', GRID_L3, SOLUTION_L3, {
+  createPuzzle('level-3', 6, '關卡 6 (7×7)', GRID_L3, SOLUTION_L3, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'hard',
@@ -442,6 +475,7 @@ export const PUZZLES_7X7: PuzzleData[] = [
 export const CAMPAIGN_PUZZLES: PuzzleData[] = [
   CAMPAIGN_L1_PUZZLE,
   CAMPAIGN_L2_PUZZLE,
+  CAMPAIGN_L3_PUZZLE,
   ...PUZZLES_7X7,
 ];
 

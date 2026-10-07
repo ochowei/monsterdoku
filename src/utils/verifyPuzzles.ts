@@ -4,6 +4,7 @@ import {
   TUTORIAL_3_PUZZLE,
   CAMPAIGN_L1_PUZZLE,
   CAMPAIGN_L2_PUZZLE,
+  CAMPAIGN_L3_PUZZLE,
   CAMPAIGN_PUZZLES,
   TUTORIAL_PUZZLES,
   PUZZLES_7X7,
@@ -51,7 +52,24 @@ function runVerification() {
     console.log('  ✅ L2 PASSED\n');
   }
 
-  // 3. Verify No Repetition across Onboarding and Campaign
+  // 3. Verify Campaign L3
+  console.log('▶ Verifying Campaign Level 3 (6×6 Easy)...');
+  const l3Result = validatePuzzleStructure(CAMPAIGN_L3_PUZZLE, {
+    allowSingleCellRegion: false,
+  });
+  console.log('  - Grid size:', CAMPAIGN_L3_PUZZLE.size, 'x', CAMPAIGN_L3_PUZZLE.size);
+  console.log('  - Region sizes:', l3Result.regionSizes);
+  console.log('  - Solutions found:', l3Result.solutionCount);
+  console.log('  - Is unique:', l3Result.isUnique);
+  console.log('  - Is valid:', l3Result.isValid);
+  if (!l3Result.isValid || !l3Result.isUnique) {
+    console.error('  ❌ L3 Validation FAILED:', l3Result.errors);
+    allPassed = false;
+  } else {
+    console.log('  ✅ L3 PASSED\n');
+  }
+
+  // 4. Verify No Repetition across Onboarding and Campaign
   console.log('▶ Verifying Solution Distinctness across Levels...');
   const solutions = [
     { name: 'Tutorial 1', sol: TUTORIAL_1_PUZZLE.solution.join(',') },
@@ -59,6 +77,7 @@ function runVerification() {
     { name: 'Tutorial 3', sol: TUTORIAL_3_PUZZLE.solution.join(',') },
     { name: 'Campaign L1', sol: CAMPAIGN_L1_PUZZLE.solution.join(',') },
     { name: 'Campaign L2', sol: CAMPAIGN_L2_PUZZLE.solution.join(',') },
+    { name: 'Campaign L3', sol: CAMPAIGN_L3_PUZZLE.solution.join(',') },
   ];
 
   const seen = new Map<string, string>();
@@ -74,7 +93,7 @@ function runVerification() {
     }
   }
   if (!hasDuplicates) {
-    console.log('  ✅ All 5×5 Solutions are distinct\n');
+    console.log('  ✅ All Solutions are distinct across all levels\n');
   }
 
   // 4. Verify Tutorial Puzzles Integrity
@@ -110,13 +129,18 @@ function runVerification() {
   console.log('  - Total Campaign levels:', CAMPAIGN_PUZZLES.length);
   console.log('  - Level 1 ID:', CAMPAIGN_PUZZLES[0].id, `(${CAMPAIGN_PUZZLES[0].size}x${CAMPAIGN_PUZZLES[0].size}, ${CAMPAIGN_PUZZLES[0].difficulty})`);
   console.log('  - Level 2 ID:', CAMPAIGN_PUZZLES[1].id, `(${CAMPAIGN_PUZZLES[1].size}x${CAMPAIGN_PUZZLES[1].size}, ${CAMPAIGN_PUZZLES[1].difficulty})`);
-  console.log('  - Level 3 ID:', CAMPAIGN_PUZZLES[2].id, `(${CAMPAIGN_PUZZLES[2].size}x${CAMPAIGN_PUZZLES[2].size})`);
+  console.log('  - Level 3 ID:', CAMPAIGN_PUZZLES[2].id, `(${CAMPAIGN_PUZZLES[2].size}x${CAMPAIGN_PUZZLES[2].size}, ${CAMPAIGN_PUZZLES[2].difficulty})`);
+  console.log('  - Level 4 ID:', CAMPAIGN_PUZZLES[3].id, `(${CAMPAIGN_PUZZLES[3].size}x${CAMPAIGN_PUZZLES[3].size})`);
   
-  if (CAMPAIGN_PUZZLES[0].id !== 'campaign-1' || CAMPAIGN_PUZZLES[1].id !== 'campaign-2') {
+  if (
+    CAMPAIGN_PUZZLES[0].id !== 'campaign-1' ||
+    CAMPAIGN_PUZZLES[1].id !== 'campaign-2' ||
+    CAMPAIGN_PUZZLES[2].id !== 'campaign-3'
+  ) {
     console.error('  ❌ Campaign list order incorrect!');
     allPassed = false;
   } else {
-    console.log('  ✅ Campaign progression correctly set to L1 -> L2 -> L3...\n');
+    console.log('  ✅ Campaign progression correctly set to L1 -> L2 -> L3 -> existing levels...\n');
   }
 
   if (allPassed) {
