@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, VolumeX, HelpCircle, RotateCcw, Lightbulb, Heart } from 'lucide-react';
+import { Volume2, VolumeX, HelpCircle, RotateCcw, Lightbulb, Heart, Home } from 'lucide-react';
 import { FoxIcon } from './FoxIllustration';
 
 interface GameHeaderProps {
@@ -14,6 +14,7 @@ interface GameHeaderProps {
   onOpenRules: () => void;
   onReset: () => void;
   onHint: () => void;
+  onBackToHome?: () => void;
 }
 
 export const GameHeader: React.FC<GameHeaderProps> = ({
@@ -28,12 +29,23 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
   onOpenRules,
   onReset,
   onHint,
+  onBackToHome,
 }) => {
   return (
     <header className="w-full max-w-2xl mx-auto mb-3 flex flex-col items-center select-none">
       {/* Top Level & Setting Banner */}
       <div className="flex items-center justify-between w-full px-2 sm:px-4 py-2 border-b border-slate-800/80 mb-2 text-xs">
         <div className="flex items-center gap-2">
+          {onBackToHome && (
+            <button
+              onClick={onBackToHome}
+              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors text-[11px] font-medium border border-slate-700/60 cursor-pointer mr-1"
+              title="返回首頁"
+            >
+              <Home className="w-3 h-3 text-slate-400" />
+              <span>首頁</span>
+            </button>
+          )}
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-slate-300 font-semibold">
             第 {currentLevel + 1} 關 / 共 {totalLevels} 關
