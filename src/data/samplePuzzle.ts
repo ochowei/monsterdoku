@@ -1,4 +1,4 @@
-import { ColorRegion, PuzzleData } from '../types/puzzle';
+import { ColorRegion, PuzzleData, TutorialGuidance } from '../types/puzzle';
 
 export const COLOR_REGIONS_7: ColorRegion[] = [
   {
@@ -113,6 +113,7 @@ function createPuzzle(
     difficulty?: 'tutorial' | 'beginner' | 'easy' | 'medium' | 'hard';
     category?: 'tutorial' | 'campaign' | 'test' | 'endless';
     description?: string;
+    guidance?: TutorialGuidance;
   }
 ): PuzzleData {
   const size = options?.size ?? grid.length;
@@ -138,6 +139,7 @@ function createPuzzle(
     difficulty: options?.difficulty,
     category: options?.category,
     description: options?.description,
+    guidance: options?.guidance,
   };
 }
 
@@ -153,6 +155,12 @@ export const PUZZLE_5X5_TEST = createPuzzle(
     difficulty: 'beginner',
     category: 'campaign',
     description: '5×5 小型棋盤測試關卡，驗證自適應棋盤大小與核心非相鄰邏輯。',
+    guidance: {
+      mode: 'guided',
+      instruction: '觀察被標示的棲地，找找看有哪些位置可以先排除。',
+      highlightRegionId: 0,
+      highlightCell: { row: 0, col: 1 },
+    },
   }
 );
 

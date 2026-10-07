@@ -12,6 +12,8 @@ interface PuzzleCellProps {
   isHinted: boolean;
   isGhost?: boolean;
   isLockedCross?: boolean;
+  isTutorialRegionHighlighted?: boolean;
+  isTutorialCellHighlighted?: boolean;
   onMouseDown: (e: React.MouseEvent, row: number, col: number) => void;
   onMouseEnter: (row: number, col: number) => void;
   onContextMenu: (e: React.MouseEvent, row: number, col: number) => void;
@@ -27,6 +29,8 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
   isHinted,
   isGhost = false,
   isLockedCross = false,
+  isTutorialRegionHighlighted = false,
+  isTutorialCellHighlighted = false,
   onMouseDown,
   onMouseEnter,
   onContextMenu,
@@ -63,8 +67,26 @@ export const PuzzleCell: React.FC<PuzzleCellProps> = ({
             ? 'ring-2 ring-amber-300 ring-inset shadow-[0_0_12px_rgba(251,191,36,0.6)] z-10'
             : ''
         }
+        ${
+          isTutorialRegionHighlighted && !isConflicted && !isHinted
+            ? 'ring-2 ring-amber-300/80 ring-inset shadow-[inset_0_0_12px_rgba(251,191,36,0.35)]'
+            : ''
+        }
       `}
     >
+      {/* Tutorial Region Ambient Warmth */}
+      {isTutorialRegionHighlighted && (
+        <div className="absolute inset-0 bg-amber-400/12 pointer-events-none animate-[pulse_3s_ease-in-out_infinite]" />
+      )}
+
+      {/* Tutorial Cell Focus Target Indicator */}
+      {isTutorialCellHighlighted && (
+        <div className="absolute inset-1 rounded-md border-2 border-dashed border-amber-300 pointer-events-none animate-[pulse_2s_infinite] shadow-[0_0_10px_rgba(251,191,36,0.6)] z-20 flex items-center justify-center">
+          {state === 'empty' && !isGhost && (
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(251,191,36,0.9)]" />
+          )}
+        </div>
+      )}
       {/* State Display: Fox */}
       {state === 'fox' && (
         <div

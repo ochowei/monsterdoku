@@ -205,6 +205,14 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                   ghostCell !== null && ghostCell.row === r && ghostCell.col === c;
                 const isLockedCross = lockedCrosses.has(`${r},${c}`);
 
+                const isTutorialRegionHighlighted =
+                  puzzle.guidance?.highlightRegionId !== undefined &&
+                  regId === puzzle.guidance.highlightRegionId;
+                const isTutorialCellHighlighted =
+                  puzzle.guidance?.highlightCell !== undefined &&
+                  puzzle.guidance.highlightCell.row === r &&
+                  puzzle.guidance.highlightCell.col === c;
+
                 return (
                   <PuzzleCell
                     key={`cell-${r}-${c}`}
@@ -217,6 +225,8 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                     isHinted={isHinted}
                     isGhost={isGhost}
                     isLockedCross={isLockedCross}
+                    isTutorialRegionHighlighted={isTutorialRegionHighlighted}
+                    isTutorialCellHighlighted={isTutorialCellHighlighted}
                     onMouseDown={onCellMouseDown}
                     onMouseEnter={onCellMouseEnter}
                     onContextMenu={onCellContextMenu}

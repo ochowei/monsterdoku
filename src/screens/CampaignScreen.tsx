@@ -17,6 +17,7 @@ import { HowToPlayModal } from '../components/HowToPlayModal';
 import { VictoryOverlay } from '../components/VictoryOverlay';
 import { GameOverOverlay } from '../components/GameOverOverlay';
 import { PlacementConfirmModal } from '../components/PlacementConfirmModal';
+import { TutorialInstructionBanner } from '../components/TutorialInstructionBanner';
 
 interface CampaignScreenProps {
   onBackToHome: () => void;
@@ -424,6 +425,20 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
           onSelectLevel={handleSelectLevel}
           onBackToHome={onBackToHome}
         />
+
+        {/* Tutorial Guidance Instruction Banner (when present) */}
+        {puzzle.guidance?.instruction && (
+          <TutorialInstructionBanner
+            instruction={puzzle.guidance.instruction}
+            mode={puzzle.guidance.mode}
+            highlightedRegion={
+              puzzle.guidance.highlightRegionId !== undefined
+                ? puzzle.regions.find((r) => r.id === puzzle.guidance?.highlightRegionId)
+                : undefined
+            }
+            highlightedCell={puzzle.guidance.highlightCell}
+          />
+        )}
 
         {/* Puzzle Board Viewport */}
         <PuzzleBoard

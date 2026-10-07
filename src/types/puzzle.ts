@@ -22,6 +22,13 @@ export interface ConflictInfo {
   conflictedCells: Set<string>; // "r,c" keys
 }
 
+export interface TutorialGuidance {
+  mode?: 'guided' | 'assisted' | 'independent';
+  instruction?: string;
+  highlightRegionId?: number;
+  highlightCell?: { row: number; col: number };
+}
+
 export interface PuzzleData {
   id: string;
   title: string;
@@ -35,4 +42,5 @@ export interface PuzzleData {
   difficulty?: 'tutorial' | 'beginner' | 'easy' | 'medium' | 'hard';
   category?: 'tutorial' | 'campaign' | 'test' | 'endless';
   description?: string;
+  guidance?: TutorialGuidance;
 }
