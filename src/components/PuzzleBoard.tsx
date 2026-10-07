@@ -9,6 +9,9 @@ interface PuzzleBoardProps {
   hintCell: { row: number; col: number } | null;
   ghostCell: { row: number; col: number } | null;
   lockedCrosses: Set<string>;
+  highlightRegionId?: number;
+  highlightCell?: { row: number; col: number };
+  highlightCells?: { row: number; col: number }[];
   onCellMouseDown: (e: React.MouseEvent, row: number, col: number) => void;
   onCellMouseEnter: (row: number, col: number) => void;
   onCellContextMenu: (e: React.MouseEvent, row: number, col: number) => void;
@@ -21,6 +24,9 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   hintCell,
   ghostCell,
   lockedCrosses,
+  highlightRegionId,
+  highlightCell,
+  highlightCells,
   onCellMouseDown,
   onCellMouseEnter,
   onCellContextMenu,
@@ -205,13 +211,20 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
                   ghostCell !== null && ghostCell.row === r && ghostCell.col === c;
                 const isLockedCross = lockedCrosses.has(`${r},${c}`);
 
+                const activeHighlightRegionId =
+                  highlightRegionId !== undefined
+                    ? highlightRegionId
+                    : (highlightCell === undefined && highlightCells === undefined ? puzzle.guidance?.highlightRegionId : undefined);
                 const isTutorialRegionHighlighted =
-                  puzzle.guidance?.highlightRegionId !== undefined &&
-                  regId === puzzle.guidance.highlightRegionId;
+                  activeHighlightRegionId !== undefined && regId === activeHighlightRegionId;
+
                 const isTutorialCellHighlighted =
-                  puzzle.guidance?.highlightCell !== undefined &&
-                  puzzle.guidance.highlightCell.row === r &&
-                  puzzle.guidance.highlightCell.col === c;
+                  (highlightCell !== undefined && highlightCell.row === r && highlightCell.col === c) ||
+                  (highlightCells !== undefined && highlightCells.some((target) => target.row === r && target.col === c)) ||
+                  (highlightCell === undefined && highlightCells === undefined && highlightRegionId === undefined &&
+                    puzzle.guidance?.highlightCell !== undefined &&
+                    puzzle.guidance.highlightCell.row === r &&
+                    puzzle.guidance.highlightCell.col === c);
 
                 return (
                   <PuzzleCell

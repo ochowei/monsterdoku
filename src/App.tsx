@@ -8,6 +8,7 @@ import { GameScreen } from './types/gameFlow';
 import { HomeScreen } from './screens/HomeScreen';
 import { CampaignScreen } from './screens/CampaignScreen';
 import { EndlessScreen } from './screens/EndlessScreen';
+import { TUTORIAL_1_PUZZLE } from './data/samplePuzzle';
 import { sounds } from './utils/audio';
 
 export default function App() {
@@ -19,6 +20,23 @@ export default function App() {
     setIsMuted(nextMuted);
     sounds.setMuted(nextMuted);
   }, [isMuted]);
+
+  if (currentScreen === 'tutorial') {
+    return (
+      <CampaignScreen
+        isTutorialMode={true}
+        puzzles={[TUTORIAL_1_PUZZLE]}
+        onBackToHome={() => {
+          sounds.playClear();
+          setCurrentScreen('home');
+        }}
+        onGoToCampaign={() => {
+          sounds.playTap();
+          setCurrentScreen('campaign');
+        }}
+      />
+    );
+  }
 
   if (currentScreen === 'campaign') {
     return (

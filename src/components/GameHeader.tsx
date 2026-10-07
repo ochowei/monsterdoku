@@ -8,6 +8,7 @@ interface GameHeaderProps {
   foxCount: number;
   totalFoxes: number;
   boardSize?: number;
+  isTutorialMode?: boolean;
   lives: number;
   maxLives: number;
   isMuted: boolean;
@@ -25,6 +26,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
   foxCount,
   totalFoxes,
   boardSize = 7,
+  isTutorialMode = false,
   lives,
   maxLives,
   isMuted,
@@ -52,28 +54,32 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
           )}
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-slate-300 font-semibold">
-            第 {currentLevel + 1} 關 / 共 {totalLevels} 關
+            {isTutorialMode ? '新手教學 · Tutorial 1' : `第 ${currentLevel + 1} 關 / 共 ${totalLevels} 關`}
           </span>
           <span className="text-slate-600">·</span>
           <span className="text-slate-400 font-medium">{boardSize}×{boardSize} 顏色區域</span>
 
-          {/* Quick level switcher pills */}
-          {onSelectLevel && (
+          {/* Quick level switcher pills (only in campaign mode) */}
+          {!isTutorialMode && onSelectLevel && (
             <div className="flex items-center gap-1 ml-1">
-              {Array.from({ length: totalLevels }, (_, idx) => (
-                <button
-                  key={`lvl-chip-${idx}`}
-                  onClick={() => onSelectLevel(idx)}
-                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer ${
-                    currentLevel === idx
-                      ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                      : 'bg-slate-800/90 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700/50'
-                  }`}
-                  title={`切換到第 ${idx + 1} 關`}
-                >
-                  L{idx + 1}
-                </button>
-              ))}
+              {Array.from({ length: totalLevels }, (_, idx) => {
+                const label = totalLevels >= 5 && idx === 0 ? 'T1' : totalLevels >= 5 ? `L${idx}` : `L${idx + 1}`;
+                const title = totalLevels >= 5 && idx === 0 ? '切換到新手教學 1 (5×5)' : `切換到關卡 ${idx + 1}`;
+                return (
+                  <button
+                    key={`lvl-chip-${idx}`}
+                    onClick={() => onSelectLevel(idx)}
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer ${
+                      currentLevel === idx
+                        ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                        : 'bg-slate-800/90 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700/50'
+                    }`}
+                    title={title}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -135,24 +141,31 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
           <div className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">
             靈力 HP
           </div>
-          <div className="flex items-center gap-1">
-            {Array.from({ length: maxLives }, (_, i) => {
-              const isAlive = i < lives;
-              return (
-                <span
-                  key={`heart-${i}`}
-                  className={`text-sm transition-all duration-300 transform ${
-                    isAlive
-                      ? 'scale-100 filter drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] animate-[pulse_2s_infinite]'
-                      : 'scale-90 opacity-25 grayscale filter'
-                  }`}
-                  title={isAlive ? '生命點數' : '已放錯扣除'}
-                >
-                  {isAlive ? '❤️' : '🖤'}
-                </span>
-              );
-            })}
-          </div>
+          {isTutorialMode ? (
+            <span className="text-[11px] font-medium text-emerald-400 font-mono flex items-center gap-1">
+              <span>教學無損</span>
+              <span className="text-red-500">❤️</span>
+            </span>
+          ) : (
+            <div className="flex items-center gap-1">
+              {Array.from({ length: maxLives }, (_, i) => {
+                const isAlive = i < lives;
+                return (
+                  <span
+                    key={`heart-${i}`}
+                    className={`text-sm transition-all duration-300 transform ${
+                      isAlive
+                        ? 'scale-100 filter drop-shadow-[0_0_5px_rgba(239,68,68,0.8)] animate-[pulse_2s_infinite]'
+                        : 'scale-90 opacity-25 grayscale filter'
+                    }`}
+                    title={isAlive ? '生命點數' : '已放錯扣除'}
+                  >
+                    {isAlive ? '❤️' : '🖤'}
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Action Buttons: Hint & Reset */}

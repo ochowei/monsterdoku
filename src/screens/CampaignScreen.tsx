@@ -21,17 +21,40 @@ import { TutorialInstructionBanner } from '../components/TutorialInstructionBann
 
 interface CampaignScreenProps {
   onBackToHome: () => void;
+  onGoToCampaign?: () => void;
+  puzzles?: typeof PUZZLES;
+  isTutorialMode?: boolean;
 }
 
-export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) => {
+export const CampaignScreen: React.FC<CampaignScreenProps> = ({
+  onBackToHome,
+  onGoToCampaign,
+  puzzles = PUZZLES,
+  isTutorialMode = false,
+}) => {
   const [levelIndex, setLevelIndex] = useState<number>(0);
-  const puzzle = PUZZLES[levelIndex];
+  const puzzle = puzzles[levelIndex] ?? puzzles[0];
   const size = puzzle.size;
 
-  // 7x7 Grid state
+  // 5x5 or 7x7 Grid state
   const [gridState, setGridState] = useState<CellState[][]>(() =>
     Array.from({ length: size }, () => Array(size).fill('empty'))
   );
+
+  // Effective tutorial mode: explicit prop or puzzle category
+  const isEffectiveTutorialMode = isTutorialMode || puzzle.category === 'tutorial';
+
+  // Tutorial Step Progression
+  const [tutorialStepIndex, setTutorialStepIndex] = useState<number>(0);
+  const tutorialSteps = puzzle.guidance?.steps;
+  const activeStep =
+    isEffectiveTutorialMode && tutorialSteps && tutorialSteps.length > 0
+      ? tutorialSteps[tutorialStepIndex]
+      : undefined;
+
+  const activeHighlightRegionId = activeStep?.highlightRegionId;
+  const activeHighlightCell = activeStep?.highlightCell;
+  const activeHighlightCells = activeStep?.highlightCells;
 
   // Dragging state for left-click exclusion marking
   const [isDragging, setIsDragging] = useState(false);
@@ -86,7 +109,8 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
   // Level selection handler
   const handleSelectLevel = useCallback((newIndex: number) => {
     setLevelIndex(newIndex);
-    setGridState(Array.from({ length: PUZZLES[newIndex].size }, () => Array(PUZZLES[newIndex].size).fill('empty')));
+    const targetPuzzle = puzzles[newIndex] ?? puzzles[0];
+    setGridState(Array.from({ length: targetPuzzle.size }, () => Array(targetPuzzle.size).fill('empty')));
     setLives(3);
     setLockedCrosses(new Set());
     setPendingPlacement(null);
@@ -97,8 +121,9 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
     setShowFeedbackCard(false);
     setIsGameOverOpen(false);
     setIsVictoryOpen(false);
+    setTutorialStepIndex(0);
     sounds.playClear();
-  }, []);
+  }, [puzzles]);
 
   // Restart entire Campaign from Level 1
   const handleRestartCampaign = useCallback(() => {
@@ -107,10 +132,89 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
 
   // Advance to next level in Campaign (stops at final level without wrapping)
   const handleNextLevel = useCallback(() => {
-    if (levelIndex < PUZZLES.length - 1) {
+    if (levelIndex < puzzles.length - 1) {
       handleSelectLevel(levelIndex + 1);
     }
-  }, [levelIndex, handleSelectLevel]);
+  }, [levelIndex, handleSelectLevel, puzzles.length]);
+
+  // Reset current board
+  const handleReset = useCallback(() => {
+    setGridState(Array.from({ length: size }, () => Array(size).fill('empty')));
+    setLives(MAX_LIVES);
+    setLockedCrosses(new Set());
+    setPendingPlacement(null);
+    setIsDragging(false);
+    setDragTargetState(null);
+    setHintCell(null);
+    setHintBanner(null);
+    setShowFeedbackCard(false);
+    setIsGameOverOpen(false);
+    setIsVictoryOpen(false);
+    setTutorialStepIndex(0);
+    sounds.playClear();
+  }, [size]);
+
+  // Tutorial Step Progression automatic condition checking
+  useEffect(() => {
+    if (!isEffectiveTutorialMode || !activeStep || !tutorialSteps) return;
+
+    let shouldAdvance = false;
+
+    if (activeStep.stepId === 1) {
+      // Step 1: Placing Fox at (0, 0)
+      if (gridState[0][0] === 'fox') {
+        shouldAdvance = true;
+      }
+    } else if (activeStep.stepId === 2) {
+      // Step 2: Excluding adjacent cells (0,1), (1,1), (1,0)
+      const crossedCount = [
+        gridState[0][1] === 'cross',
+        gridState[1][1] === 'cross',
+        gridState[1][0] === 'cross',
+      ].filter(Boolean).length;
+      if (crossedCount === 3 || gridState[2][1] === 'fox') {
+        shouldAdvance = true;
+      }
+    } else if (activeStep.stepId === 3) {
+      // Step 3: Placing Fox at (2, 1)
+      if (gridState[2][1] === 'fox' || gridState[1][3] === 'fox') {
+        shouldAdvance = true;
+      }
+    } else if (activeStep.stepId === 4) {
+      // Step 4: Placing Fox at (1, 3)
+      if (gridState[1][3] === 'fox') {
+        shouldAdvance = true;
+      }
+    }
+
+    if (shouldAdvance && tutorialStepIndex < tutorialSteps.length - 1) {
+      setTutorialStepIndex((prev) => prev + 1);
+      sounds.playTap();
+    }
+  }, [gridState, isEffectiveTutorialMode, activeStep, tutorialSteps, tutorialStepIndex]);
+
+  // Tutorial mistake contextual feedback helper
+  const getTutorialMistakeFeedback = useCallback(
+    (row: number, col: number) => {
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (gridState[r][c] === 'fox') {
+            if (Math.abs(r - row) <= 1 && Math.abs(c - col) <= 1) {
+              return '💡 提示：這裡離已放置的三尾狐太近了（八方不可相鄰），試著將它標記為 ❌ 排除。';
+            }
+            if (r === row) {
+              return `💡 提示：第 ${r + 1} 行已經有一隻三尾狐囉！每行只能有 1 隻。`;
+            }
+            if (c === col) {
+              return `💡 提示：第 ${c + 1} 列已經有一隻三尾狐囉！每列只能有 1 隻。`;
+            }
+          }
+        }
+      }
+      return '💡 提示：這裡不符合三尾狐的唯一藏身處，試著換個位置推導看看！';
+    },
+    [gridState, size]
+  );
 
   // Compute conflicts dynamically
   const conflicts: ConflictInfo = useMemo(
@@ -179,6 +283,17 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
         // Fast place Fox!
         const isCorrect = puzzle.solution[row] === col;
         if (!isCorrect) {
+          if (isEffectiveTutorialMode) {
+            sounds.playMistake();
+            setHintBanner(getTutorialMistakeFeedback(row, col));
+            setGridState((prev) => {
+              const next = prev.map((r) => [...r]);
+              next[row][col] = 'cross';
+              return next;
+            });
+            return;
+          }
+
           // Mistake! Deduct 1 HP and lock cell permanently as ❌
           setLives((prevLives) => {
             const nextLives = Math.max(0, prevLives - 1);
@@ -298,6 +413,17 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
 
     const isCorrect = puzzle.solution[row] === col;
     if (!isCorrect) {
+      if (isEffectiveTutorialMode) {
+        sounds.playMistake();
+        setHintBanner(getTutorialMistakeFeedback(row, col));
+        setGridState((prev) => {
+          const next = prev.map((r) => [...r]);
+          next[row][col] = 'cross';
+          return next;
+        });
+        return;
+      }
+
       // Mistake! Deduct 1 HP and lock cell permanently as ❌
       setLives((prevLives) => {
         const nextLives = Math.max(0, prevLives - 1);
@@ -357,22 +483,6 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
     sounds.setMuted(nextMuted);
   }, [isMuted]);
 
-  // Reset board
-  const handleReset = useCallback(() => {
-    setGridState(Array.from({ length: size }, () => Array(size).fill('empty')));
-    setLives(MAX_LIVES);
-    setLockedCrosses(new Set());
-    setPendingPlacement(null);
-    setIsDragging(false);
-    setDragTargetState(null);
-    setHintCell(null);
-    setHintBanner(null);
-    setShowFeedbackCard(false);
-    setIsGameOverOpen(false);
-    setIsVictoryOpen(false);
-    sounds.playClear();
-  }, [size]);
-
   // Hint handler
   const handleHint = useCallback(() => {
     const hint = getHintAction(gridState, puzzle);
@@ -411,10 +521,11 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
         {/* Game Header */}
         <GameHeader
           currentLevel={levelIndex}
-          totalLevels={PUZZLES.length}
+          totalLevels={puzzles.length}
           foxCount={foxCount}
           totalFoxes={size}
           boardSize={size}
+          isTutorialMode={isEffectiveTutorialMode}
           lives={lives}
           maxLives={MAX_LIVES}
           isMuted={isMuted}
@@ -427,16 +538,19 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
         />
 
         {/* Tutorial Guidance Instruction Banner (when present) */}
-        {puzzle.guidance?.instruction && (
+        {isEffectiveTutorialMode && (activeStep || puzzle.guidance?.instruction) && (
           <TutorialInstructionBanner
-            instruction={puzzle.guidance.instruction}
-            mode={puzzle.guidance.mode}
+            instruction={activeStep?.instruction || puzzle.guidance?.instruction || ''}
+            subText={activeStep?.subText}
+            stepNumber={tutorialSteps ? tutorialStepIndex + 1 : undefined}
+            totalSteps={tutorialSteps ? tutorialSteps.length : undefined}
+            mode={activeStep?.mode || puzzle.guidance?.mode || 'guided'}
             highlightedRegion={
-              puzzle.guidance.highlightRegionId !== undefined
-                ? puzzle.regions.find((r) => r.id === puzzle.guidance?.highlightRegionId)
+              activeHighlightRegionId !== undefined
+                ? puzzle.regions.find((r) => r.id === activeHighlightRegionId)
                 : undefined
             }
-            highlightedCell={puzzle.guidance.highlightCell}
+            highlightedCell={activeHighlightCell}
           />
         )}
 
@@ -448,6 +562,9 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
           hintCell={hintCell}
           ghostCell={pendingPlacement}
           lockedCrosses={lockedCrosses}
+          highlightRegionId={activeHighlightRegionId}
+          highlightCell={activeHighlightCell}
+          highlightCells={activeHighlightCells}
           onCellMouseDown={handleCellMouseDown}
           onCellMouseEnter={handleCellMouseEnter}
           onCellContextMenu={handleCellContextMenu}
@@ -484,7 +601,7 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
       {/* Footer Info for itch.io playtest context */}
       <footer className="relative z-10 w-full max-w-2xl mx-auto mt-4 pt-3 border-t border-slate-800/60 text-center text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-1">
         <div>
-          Monsterdoku · Campaign Mode
+          {isEffectiveTutorialMode ? 'Monsterdoku · Tutorial Mode' : 'Monsterdoku · Campaign Mode'}
         </div>
         <div className="flex items-center gap-2">
           <span>itch.io Playtest Ver. 0.1</span>
@@ -502,12 +619,14 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
       <VictoryOverlay
         isOpen={isVictoryOpen}
         currentLevel={levelIndex}
-        totalLevels={PUZZLES.length}
+        totalLevels={puzzles.length}
         boardSize={size}
+        isTutorialMode={isEffectiveTutorialMode}
         onPlayAgain={handleReset}
         onNextLevel={handleNextLevel}
         onRestartCampaign={handleRestartCampaign}
         onBackToHome={onBackToHome}
+        onGoToCampaign={onGoToCampaign}
       />
 
       <GameOverOverlay

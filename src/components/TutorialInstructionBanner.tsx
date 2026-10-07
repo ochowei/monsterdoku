@@ -4,6 +4,9 @@ import { ColorRegion } from '../types/puzzle';
 
 interface TutorialInstructionBannerProps {
   instruction: string;
+  subText?: string;
+  stepNumber?: number;
+  totalSteps?: number;
   mode?: 'guided' | 'assisted' | 'independent';
   highlightedRegion?: ColorRegion;
   highlightedCell?: { row: number; col: number };
@@ -11,6 +14,9 @@ interface TutorialInstructionBannerProps {
 
 export const TutorialInstructionBanner: React.FC<TutorialInstructionBannerProps> = ({
   instruction,
+  subText,
+  stepNumber,
+  totalSteps,
   mode = 'guided',
   highlightedRegion,
   highlightedCell,
@@ -25,12 +31,12 @@ export const TutorialInstructionBanner: React.FC<TutorialInstructionBannerProps>
         <div className="absolute top-0 left-0 w-24 h-full bg-amber-400/10 blur-xl pointer-events-none" />
 
         {/* Content Side */}
-        <div className="flex items-start sm:items-center gap-2.5 z-10">
+        <div className="flex items-start sm:items-center gap-2.5 z-10 w-full">
           <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0 shadow-sm">
             <Compass className="w-4 h-4 text-amber-400" />
           </div>
 
-          <div className="text-left">
+          <div className="text-left flex-grow">
             <div className="flex items-center gap-2 flex-wrap mb-0.5">
               <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-wider text-amber-300/90 font-mono">
                 <Sparkles className="w-2.5 h-2.5 text-amber-400" />
@@ -40,6 +46,12 @@ export const TutorialInstructionBanner: React.FC<TutorialInstructionBannerProps>
                   ? '自主推理 · Independent'
                   : '探索指引 · Guidance'}
               </span>
+
+              {stepNumber !== undefined && totalSteps !== undefined && (
+                <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  步驟 {stepNumber}/{totalSteps}
+                </span>
+              )}
 
               {highlightedRegion && (
                 <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-800 text-slate-200 border border-white/10">
@@ -58,9 +70,15 @@ export const TutorialInstructionBanner: React.FC<TutorialInstructionBannerProps>
               )}
             </div>
 
-            <p className="text-xs text-amber-100/95 font-medium leading-relaxed">
+            <p className="text-xs text-amber-100 font-medium leading-relaxed">
               {instruction}
             </p>
+
+            {subText && (
+              <p className="text-[11px] text-amber-200/80 mt-0.5 leading-relaxed font-normal">
+                {subText}
+              </p>
+            )}
           </div>
         </div>
       </div>

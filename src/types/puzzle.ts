@@ -22,11 +22,26 @@ export interface ConflictInfo {
   conflictedCells: Set<string>; // "r,c" keys
 }
 
+export interface TutorialStep {
+  stepId: number;
+  instruction: string;
+  subText?: string;
+  mode?: 'guided' | 'assisted' | 'independent';
+  highlightRegionId?: number;
+  highlightCell?: { row: number; col: number };
+  highlightCells?: { row: number; col: number }[];
+  conditionType: 'cell_fox' | 'cells_cross' | 'free_play';
+  targetCell?: { row: number; col: number };
+  targetCells?: { row: number; col: number }[];
+}
+
 export interface TutorialGuidance {
   mode?: 'guided' | 'assisted' | 'independent';
   instruction?: string;
   highlightRegionId?: number;
   highlightCell?: { row: number; col: number };
+  highlightCells?: { row: number; col: number }[];
+  steps?: TutorialStep[];
 }
 
 export interface PuzzleData {

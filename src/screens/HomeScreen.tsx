@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Play, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import { Play, Sparkles, Volume2, VolumeX, Compass } from 'lucide-react';
 import { FoxMascotShowcase } from '../components/FoxIllustration';
 import { GameScreen } from '../types/gameFlow';
 import { sounds } from '../utils/audio';
@@ -68,6 +68,36 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Mode Selector Buttons */}
         <div className="w-full flex flex-col gap-3">
+          {/* Tutorial 1 Mode (Primary Onboarding Entry) */}
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playTap();
+              onSelectScreen('tutorial');
+            }}
+            className="w-full group relative flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-emerald-600/20 hover:from-emerald-500/30 hover:to-teal-500/25 border border-emerald-400/40 hover:border-emerald-400/70 shadow-[0_8px_24px_rgba(16,185,129,0.15)] transition-all duration-200 cursor-pointer active:scale-[0.98] text-left"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center shadow-md shadow-emerald-500/30 group-hover:scale-105 transition-transform">
+                <Compass className="w-5 h-5 ml-0.5" />
+              </div>
+              <div>
+                <div className="text-base font-bold text-white group-hover:text-emerald-200 transition-colors flex items-center gap-2">
+                  <span>新手教學 · Tutorial 1</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/25 text-emerald-300 border border-emerald-400/40">
+                    推薦入門
+                  </span>
+                </div>
+                <div className="text-xs text-slate-300/90 mt-0.5">
+                  5×5 循序引導：掌握觀察、排除、放置與八方非相鄰
+                </div>
+              </div>
+            </div>
+            <span className="text-emerald-400 font-mono text-sm font-bold group-hover:translate-x-1 transition-transform">
+              →
+            </span>
+          </button>
+
           {/* Campaign Mode (Active) */}
           <button
             type="button"
@@ -86,7 +116,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   闖關模式 · Campaign
                 </div>
                 <div className="text-xs text-slate-300/90 mt-0.5">
-                  體驗 5×5 入門測試與經典 7×7 區域邏輯關卡
+                  挑戰 5×5 實戰與經典 7×7 區域邏輯關卡
                 </div>
               </div>
             </div>

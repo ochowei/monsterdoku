@@ -1,1 +1,1 @@
-export type GameScreen = 'home' | 'campaign' | 'endless';
+export type GameScreen = 'home' | 'tutorial' | 'campaign' | 'endless';
