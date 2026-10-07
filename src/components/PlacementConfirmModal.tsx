@@ -7,6 +7,7 @@ interface PlacementConfirmModalProps {
   isOpen: boolean;
   row: number;
   col: number;
+  boardSize?: number;
   anchorRect?: DOMRect | null;
   region: ColorRegion;
   lives: number;
@@ -18,6 +19,7 @@ export const PlacementConfirmModal: React.FC<PlacementConfirmModalProps> = ({
   isOpen,
   row,
   col,
+  boardSize = 7,
   anchorRect,
   region,
   lives,
@@ -123,22 +125,24 @@ export const PlacementConfirmModal: React.FC<PlacementConfirmModalProps> = ({
     const spaceLeft = anchorRect.left;
     const spaceRight = window.innerWidth - anchorRect.right;
 
-    // Preferred direction based on cell coordinates in 7x7 grid
+    // Preferred direction based on cell coordinates in grid
     let dir: 'top' | 'bottom' | 'left' | 'right' = 'bottom';
+    const edgeMargin = Math.max(1, Math.floor(boardSize / 3));
+    const center = Math.floor(boardSize / 2);
 
-    if (row <= 1) {
+    if (row < edgeMargin) {
       dir = 'bottom';
-    } else if (row >= 5) {
+    } else if (row >= boardSize - edgeMargin) {
       dir = 'top';
-    } else if (col <= 1) {
+    } else if (col < edgeMargin) {
       dir = 'right';
-    } else if (col >= 5) {
+    } else if (col >= boardSize - edgeMargin) {
       dir = 'left';
     } else {
-      // Middle cells (row 2-4, col 2-4)
-      if (col === 2) dir = 'left';
-      else if (col === 4) dir = 'right';
-      else if (row <= 3) dir = 'bottom';
+      // Middle cells
+      if (col < center) dir = 'right';
+      else if (col > center) dir = 'left';
+      else if (row <= center) dir = 'bottom';
       else dir = 'top';
     }
 

@@ -413,6 +413,7 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
           totalLevels={PUZZLES.length}
           foxCount={foxCount}
           totalFoxes={size}
+          boardSize={size}
           lives={lives}
           maxLives={MAX_LIVES}
           isMuted={isMuted}
@@ -420,6 +421,7 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
           onOpenRules={() => setIsRulesOpen(true)}
           onReset={handleReset}
           onHint={handleHint}
+          onSelectLevel={handleSelectLevel}
           onBackToHome={onBackToHome}
         />
 
@@ -472,7 +474,7 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
         <div className="flex items-center gap-2">
           <span>itch.io Playtest Ver. 0.1</span>
           <span>·</span>
-          <span>7×7 Color Region Puzzle</span>
+          <span>{size}×{size} Color Region Puzzle</span>
         </div>
       </footer>
 
@@ -486,6 +488,7 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
         isOpen={isVictoryOpen}
         currentLevel={levelIndex}
         totalLevels={PUZZLES.length}
+        boardSize={size}
         onPlayAgain={handleReset}
         onNextLevel={handleNextLevel}
         onRestartCampaign={handleRestartCampaign}
@@ -503,6 +506,7 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
           isOpen={!!pendingPlacement}
           row={pendingPlacement.row}
           col={pendingPlacement.col}
+          boardSize={size}
           anchorRect={pendingPlacement.rect}
           region={puzzle.regions.find((r) => r.id === puzzle.cells[pendingPlacement.row][pendingPlacement.col].regionId)!}
           lives={lives}

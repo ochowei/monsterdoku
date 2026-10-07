@@ -35,7 +35,7 @@ export const ValidationStatusHUD: React.FC<ValidationStatusHUDProps> = ({
           <span className="font-medium">每行 1 隻</span>
           <span className="font-mono font-bold flex items-center gap-1">
             {isRowComplete && <Check className="w-3.5 h-3.5 text-emerald-400" />}
-            {evaluation.satisfiedRows}/7
+            {evaluation.satisfiedRows}/{evaluation.totalRequired}
           </span>
         </div>
 
@@ -50,7 +50,7 @@ export const ValidationStatusHUD: React.FC<ValidationStatusHUDProps> = ({
           <span className="font-medium">每列 1 隻</span>
           <span className="font-mono font-bold flex items-center gap-1">
             {isColComplete && <Check className="w-3.5 h-3.5 text-emerald-400" />}
-            {evaluation.satisfiedCols}/7
+            {evaluation.satisfiedCols}/{evaluation.totalRequired}
           </span>
         </div>
 
@@ -65,7 +65,7 @@ export const ValidationStatusHUD: React.FC<ValidationStatusHUDProps> = ({
           <span className="font-medium">每色區 1 隻</span>
           <span className="font-mono font-bold flex items-center gap-1">
             {isRegionComplete && <Check className="w-3.5 h-3.5 text-emerald-400" />}
-            {evaluation.satisfiedRegions}/7
+            {evaluation.satisfiedRegions}/{evaluation.totalRequired}
           </span>
         </div>
 
@@ -157,7 +157,7 @@ export const ValidationStatusHUD: React.FC<ValidationStatusHUDProps> = ({
             <div className="p-1.5 rounded-lg bg-slate-950/60">
               <span className="block text-slate-500 text-[10px]">已滿足行/列</span>
               <span className="font-bold text-slate-300">
-                {evaluation.satisfiedRows + evaluation.satisfiedCols} / 14
+                {evaluation.satisfiedRows + evaluation.satisfiedCols} / {evaluation.totalRequired * 2}
               </span>
             </div>
           </div>

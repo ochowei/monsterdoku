@@ -6,6 +6,7 @@ interface VictoryOverlayProps {
   isOpen: boolean;
   currentLevel: number;
   totalLevels: number;
+  boardSize?: number;
   onPlayAgain: () => void;
   onNextLevel: () => void;
   onRestartCampaign?: () => void;
@@ -16,6 +17,7 @@ export const VictoryOverlay: React.FC<VictoryOverlayProps> = ({
   isOpen,
   currentLevel,
   totalLevels,
+  boardSize = 7,
   onPlayAgain,
   onNextLevel,
   onRestartCampaign,
@@ -58,7 +60,7 @@ export const VictoryOverlay: React.FC<VictoryOverlayProps> = ({
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
             {isFinalLevel
-              ? '太厲害了！你已成功通關目前 Campaign 全部的 3 個三尾狐棲地關卡！三尾狐向你優雅致意，都市的夜色歸於祥和。'
+              ? `太厲害了！你已成功通關目前 Campaign 全部的 ${totalLevels} 個三尾狐棲地關卡！三尾狐向你優雅致意，都市的夜色歸於祥和。`
               : `恭喜通過第 ${currentLevel + 1} 關！三尾狐在光芒中展開了三條蓬鬆的靈尾。`}
           </p>
         </div>
@@ -78,18 +80,18 @@ export const VictoryOverlay: React.FC<VictoryOverlayProps> = ({
             <div>
               <div className="font-semibold text-slate-200">
                 {isFinalLevel
-                  ? 'Campaign 全部 3 個關卡全數完成'
-                  : `第 ${currentLevel + 1} 關 · 7×7 顏色區域`}
+                  ? `Campaign 全部 ${totalLevels} 個關卡全數完成`
+                  : `第 ${currentLevel + 1} 關 · ${boardSize}×${boardSize} 顏色區域`}
               </div>
               <div className="text-[11px] text-slate-400">
                 {isFinalLevel
-                  ? '已成功探索完畢所有 3 處三尾狐棲地'
+                  ? `已成功探索完畢所有 ${totalLevels} 處三尾狐棲地`
                   : `剩餘 ${totalLevels - currentLevel - 1} 個關卡等待挑戰`}
               </div>
             </div>
           </div>
           <div className="text-right font-mono text-amber-300 font-bold text-sm">
-            {isFinalLevel ? '3 / 3 🏆' : '7 / 7 🦊'}
+            {isFinalLevel ? `${totalLevels} / ${totalLevels} 🏆` : `${boardSize} / ${boardSize} 🦊`}
           </div>
         </div>
 
@@ -122,7 +124,7 @@ export const VictoryOverlay: React.FC<VictoryOverlayProps> = ({
               onClick={onPlayAgain}
               className="text-xs text-slate-400 hover:text-slate-200 underline cursor-pointer mt-1"
             >
-              重玩第 3 關 · Replay Level 3
+              重玩本關 · Replay Level {currentLevel + 1}
             </button>
           </div>
         ) : (

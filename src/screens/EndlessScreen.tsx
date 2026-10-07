@@ -55,7 +55,7 @@ export const EndlessScreen: React.FC<EndlessScreenProps> = ({
             <span>架構已預留 · 開發進行中</span>
           </p>
           <p className="text-slate-400">
-            Endless 模式正在建立無限 procedural puzzle 生成器。目前請先前往「闖關模式（Campaign Mode）」體驗已精確驗證唯一解的 3 個 7×7 經典棲地關卡！
+            Endless 模式正在建立無限 procedural puzzle 生成器。目前請先前往「闖關模式（Campaign Mode）」體驗已精確驗證唯一解的 5×5 入門測試與 7×7 經典棲地關卡！
           </p>
         </div>
 

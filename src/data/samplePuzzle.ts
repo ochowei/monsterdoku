@@ -45,8 +45,22 @@ export const COLOR_REGIONS_7: ColorRegion[] = [
   },
 ];
 
+export const COLOR_REGIONS_5: ColorRegion[] = COLOR_REGIONS_7.slice(0, 5);
+
 // ----------------------------------------------------
-// LEVEL 1: Verified 100% Unique Solution [0, 3, 5, 1, 6, 4, 2]
+// 5x5 TEST LEVEL: Verified 100% Unique Solution [1, 3, 0, 2, 4]
+// ----------------------------------------------------
+const GRID_5X5_TEST: number[][] = [
+  [0, 0, 1, 1, 1],
+  [2, 0, 1, 1, 1],
+  [2, 2, 1, 4, 4],
+  [3, 3, 3, 4, 4],
+  [3, 3, 4, 4, 4],
+];
+export const SOLUTION_5X5_TEST: number[] = [1, 3, 0, 2, 4];
+
+// ----------------------------------------------------
+// LEVEL 1 (7x7): Verified 100% Unique Solution [0, 3, 5, 1, 6, 4, 2]
 // ----------------------------------------------------
 const GRID_L1: number[][] = [
   [0, 0, 0, 0, 1, 1, 1],
@@ -60,7 +74,7 @@ const GRID_L1: number[][] = [
 export const SOLUTION_L1: number[] = [0, 3, 5, 1, 6, 4, 2];
 
 // ----------------------------------------------------
-// LEVEL 2: Verified 100% Unique Solution [0, 6, 1, 3, 5, 2, 4]
+// LEVEL 2 (7x7): Verified 100% Unique Solution [0, 6, 1, 3, 5, 2, 4]
 // ----------------------------------------------------
 const GRID_L2: number[][] = [
   [0, 0, 0, 0, 0, 0, 1],
@@ -74,7 +88,7 @@ const GRID_L2: number[][] = [
 export const SOLUTION_L2: number[] = [0, 6, 1, 3, 5, 2, 4];
 
 // ----------------------------------------------------
-// LEVEL 3: Verified 100% Unique Solution [6, 0, 5, 2, 4, 1, 3]
+// LEVEL 3 (7x7): Verified 100% Unique Solution [6, 0, 5, 2, 4, 1, 3]
 // ----------------------------------------------------
 const GRID_L3: number[][] = [
   [1, 1, 1, 0, 0, 0, 0],
@@ -92,16 +106,26 @@ function createPuzzle(
   levelNum: number,
   title: string,
   grid: number[][],
-  solution: number[]
+  solution: number[],
+  options?: {
+    size?: number;
+    regions?: ColorRegion[];
+    difficulty?: 'tutorial' | 'beginner' | 'easy' | 'medium' | 'hard';
+    category?: 'tutorial' | 'campaign' | 'test' | 'endless';
+    description?: string;
+  }
 ): PuzzleData {
+  const size = options?.size ?? grid.length;
+  const regions = options?.regions ?? (size === 5 ? COLOR_REGIONS_5 : COLOR_REGIONS_7);
+
   return {
     id,
     title,
     titleEn: `Level ${levelNum}`,
     monsterName: '三尾狐',
     monsterNameEn: 'Three-Tailed Fox',
-    size: 7,
-    regions: COLOR_REGIONS_7,
+    size,
+    regions,
     cells: grid.map((row, r) =>
       row.map((regionId, c) => ({
         row: r,
@@ -111,16 +135,54 @@ function createPuzzle(
       }))
     ),
     solution,
+    difficulty: options?.difficulty,
+    category: options?.category,
+    description: options?.description,
   };
 }
 
+export const PUZZLE_5X5_TEST = createPuzzle(
+  'level-5x5-test',
+  1,
+  '5×5 測試關卡',
+  GRID_5X5_TEST,
+  SOLUTION_5X5_TEST,
+  {
+    size: 5,
+    regions: COLOR_REGIONS_5,
+    difficulty: 'beginner',
+    category: 'campaign',
+    description: '5×5 小型棋盤測試關卡，驗證自適應棋盤大小與核心非相鄰邏輯。',
+  }
+);
+
+export const PUZZLES_7X7: PuzzleData[] = [
+  createPuzzle('level-1', 2, '關卡 1 (7×7)', GRID_L1, SOLUTION_L1, {
+    size: 7,
+    regions: COLOR_REGIONS_7,
+    difficulty: 'easy',
+    category: 'campaign',
+  }),
+  createPuzzle('level-2', 3, '關卡 2 (7×7)', GRID_L2, SOLUTION_L2, {
+    size: 7,
+    regions: COLOR_REGIONS_7,
+    difficulty: 'medium',
+    category: 'campaign',
+  }),
+  createPuzzle('level-3', 4, '關卡 3 (7×7)', GRID_L3, SOLUTION_L3, {
+    size: 7,
+    regions: COLOR_REGIONS_7,
+    difficulty: 'hard',
+    category: 'campaign',
+  }),
+];
+
 export const PUZZLES: PuzzleData[] = [
-  createPuzzle('level-1', 1, '關卡 1', GRID_L1, SOLUTION_L1),
-  createPuzzle('level-2', 2, '關卡 2', GRID_L2, SOLUTION_L2),
-  createPuzzle('level-3', 3, '關卡 3', GRID_L3, SOLUTION_L3),
+  PUZZLE_5X5_TEST,
+  ...PUZZLES_7X7,
 ];
 
 // Backwards compatibility export
-export const SAMPLE_PUZZLE = PUZZLES[0];
-export const SAMPLE_SOLUTION = SOLUTION_L1;
+export const SAMPLE_PUZZLE = PUZZLE_5X5_TEST;
+export const SAMPLE_SOLUTION = SOLUTION_5X5_TEST;
 export const SAMPLE_REGIONS = COLOR_REGIONS_7;

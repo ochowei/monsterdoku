@@ -86,7 +86,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   闖關模式 · Campaign
                 </div>
                 <div className="text-xs text-slate-300/90 mt-0.5">
-                  遊玩 3 個經典關卡，體驗 7×7 區域邏輯
+                  體驗 5×5 入門測試與經典 7×7 區域邏輯關卡
                 </div>
               </div>
             </div>

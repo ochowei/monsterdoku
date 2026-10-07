@@ -83,7 +83,7 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({
               </h3>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
-              棋盤劃分的 7 個顏色區域中，每個顏色區域恰好藏有一隻三尾狐。
+              棋盤劃分的每個顏色區域中，各恰好藏有一隻三尾狐。
             </p>
           </div>
 

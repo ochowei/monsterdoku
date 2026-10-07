@@ -162,7 +162,7 @@ export function evaluateBoard(
       isAllCorrect: true,
       statusType: 'success',
       title: '解題完全正確！🎉',
-      message: '所有 7 隻三尾狐皆符合行、列、顏色區域與非相鄰規則！',
+      message: `所有 ${size} 隻三尾狐皆符合行、列、顏色區域與非相鄰規則！`,
     };
   }
 
@@ -196,8 +196,8 @@ export function evaluateBoard(
         wrongFoxesCount,
         isAllCorrect: false,
         statusType: 'warning',
-        title: '已放滿 7 隻，但有條件未完全達成 💡',
-        message: `目前已放置 7 隻三尾狐，其中有 ${wrongFoxesCount} 隻位置不符合唯一解。請檢查是否每個顏色區域皆剛好有 1 隻！`,
+        title: `已放滿 ${size} 隻，但有條件未完全達成 💡`,
+        message: `目前已放置 ${size} 隻三尾狐，其中有 ${wrongFoxesCount} 隻位置不符合唯一解。請檢查是否每個顏色區域皆剛好有 1 隻！`,
       };
     }
   }

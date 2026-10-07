@@ -7,6 +7,7 @@ interface GameHeaderProps {
   totalLevels: number;
   foxCount: number;
   totalFoxes: number;
+  boardSize?: number;
   lives: number;
   maxLives: number;
   isMuted: boolean;
@@ -14,6 +15,7 @@ interface GameHeaderProps {
   onOpenRules: () => void;
   onReset: () => void;
   onHint: () => void;
+  onSelectLevel?: (index: number) => void;
   onBackToHome?: () => void;
 }
 
@@ -22,6 +24,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
   totalLevels,
   foxCount,
   totalFoxes,
+  boardSize = 7,
   lives,
   maxLives,
   isMuted,
@@ -29,13 +32,14 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
   onOpenRules,
   onReset,
   onHint,
+  onSelectLevel,
   onBackToHome,
 }) => {
   return (
     <header className="w-full max-w-2xl mx-auto mb-3 flex flex-col items-center select-none">
       {/* Top Level & Setting Banner */}
-      <div className="flex items-center justify-between w-full px-2 sm:px-4 py-2 border-b border-slate-800/80 mb-2 text-xs">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between w-full px-2 sm:px-4 py-2 border-b border-slate-800/80 mb-2 text-xs flex-wrap gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {onBackToHome && (
             <button
               onClick={onBackToHome}
@@ -51,7 +55,27 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
             第 {currentLevel + 1} 關 / 共 {totalLevels} 關
           </span>
           <span className="text-slate-600">·</span>
-          <span className="text-slate-400 font-medium">7×7 顏色區域</span>
+          <span className="text-slate-400 font-medium">{boardSize}×{boardSize} 顏色區域</span>
+
+          {/* Quick level switcher pills */}
+          {onSelectLevel && (
+            <div className="flex items-center gap-1 ml-1">
+              {Array.from({ length: totalLevels }, (_, idx) => (
+                <button
+                  key={`lvl-chip-${idx}`}
+                  onClick={() => onSelectLevel(idx)}
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer ${
+                    currentLevel === idx
+                      ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                      : 'bg-slate-800/90 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700/50'
+                  }`}
+                  title={`切換到第 ${idx + 1} 關`}
+                >
+                  L{idx + 1}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Global Action Icons */}

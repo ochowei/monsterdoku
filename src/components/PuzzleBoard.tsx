@@ -26,6 +26,9 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
   onCellContextMenu,
 }) => {
   const size = puzzle.size;
+  // Natural board size scaling for different grid dimensions (5x5, 6x6, 7x7)
+  const boardSizePx = size <= 5 ? 340 : size <= 6 ? 395 : 450;
+  const boardDimensionStyle = `min(76vw, ${boardSizePx}px)`;
 
   // Compute row status
   const rowFoxCounts = gridState.map(
@@ -54,8 +57,11 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
           </div>
 
           <div
-            className="grid grid-cols-7"
-            style={{ width: 'min(76vw, 450px)' }}
+            className="grid"
+            style={{
+              width: boardDimensionStyle,
+              gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
+            }}
           >
             {colFoxCounts.map((count, c) => {
               const isColConflicted = conflicts.colConflicts.has(c);
@@ -95,13 +101,16 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
           </div>
         </div>
 
-        {/* The 7x7 Grid with Row Status Badges on left */}
+        {/* The Grid with Row Status Badges on left */}
         <div className="flex items-center">
           {/* Row Indicators on left */}
           <div className="flex flex-col mr-1.5 shrink-0 justify-between">
             <div
-              className="grid grid-rows-7 items-center"
-              style={{ height: 'min(76vw, 450px)' }}
+              className="grid items-center"
+              style={{
+                height: boardDimensionStyle,
+                gridTemplateRows: `repeat(${size}, minmax(0, 1fr))`,
+              }}
             >
               {rowFoxCounts.map((count, r) => {
                 const isRowConflicted = conflicts.rowConflicts.has(r);
@@ -143,10 +152,12 @@ export const PuzzleBoard: React.FC<PuzzleBoardProps> = ({
 
           {/* Grid Container */}
           <div
-            className="grid grid-cols-7 rounded-xl overflow-hidden shadow-2xl bg-slate-950 border-[3px] border-slate-950"
+            className="grid rounded-xl overflow-hidden shadow-2xl bg-slate-950 border-[3px] border-slate-950"
             style={{
-              width: 'min(76vw, 450px)',
-              height: 'min(76vw, 450px)',
+              width: boardDimensionStyle,
+              height: boardDimensionStyle,
+              gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
+              gridTemplateRows: `repeat(${size}, minmax(0, 1fr))`,
             }}
           >
             {puzzle.cells.map((rowCells, r) =>
