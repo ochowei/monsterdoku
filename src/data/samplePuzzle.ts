@@ -140,6 +140,82 @@ export const TUTORIAL_1_PUZZLE = createPuzzle(
 );
 
 // ----------------------------------------------------
+// TUTORIAL 2 (5x5 Assisted): Verified 100% Unique Solution [2, 0, 3, 1, 4]
+// Focuses on assisted observation of small regions & indirect elimination
+// ----------------------------------------------------
+const GRID_TUTORIAL_2: number[][] = [
+  [1, 0, 0, 2, 2],
+  [1, 1, 2, 2, 2],
+  [3, 3, 3, 2, 4],
+  [3, 3, 3, 3, 4],
+  [3, 3, 3, 4, 4],
+];
+export const SOLUTION_TUTORIAL_2: number[] = [2, 0, 3, 1, 4];
+
+export const TUTORIAL_2_STEPS: TutorialStep[] = [
+  {
+    stepId: 1,
+    instruction: '【尋找突破口】留意上方的綠色棲地，它只有 2 個格子。觀察相鄰的青色棲地，想想看：哪一個位置若放置怪獸，會讓青色棲地完全沒有藏身之處？',
+    subText: '透過相鄰影響進行思考，推導出綠色棲地中唯一的安全位置並放置三尾狐 🦊。',
+    mode: 'assisted',
+    highlightRegionId: 0,
+    conditionType: 'cell_fox',
+    targetCell: { row: 0, col: 2 },
+  },
+  {
+    stepId: 2,
+    instruction: '【連鎖推導】剛才放下的三尾狐佔據了第一行，且相鄰周圍都被封鎖。看看左上角的青色棲地，現在還剩下哪裡可以放？',
+    subText: '排除受波及的格子後，青色棲地只剩下唯一可能的安全位置。',
+    mode: 'assisted',
+    highlightRegionId: 1,
+    conditionType: 'cell_fox',
+    targetCell: { row: 1, col: 0 },
+  },
+  {
+    stepId: 3,
+    instruction: '【擴大觀察】第一行與第二行都已經有三尾狐了。現在將目光轉向右側的藍色棲地。',
+    subText: '結合每行只能有 1 隻的規則，推導出藍色棲地中未受影響的安全位置。',
+    mode: 'assisted',
+    highlightRegionId: 2,
+    conditionType: 'cell_fox',
+    targetCell: { row: 2, col: 3 },
+  },
+  {
+    stepId: 4,
+    instruction: '【自主完成】核心循環已然清晰！接下來不再提供提示，請運用已學會的技巧獨立找出最後 2 隻三尾狐。',
+    subText: '觀察剩餘的行、列與棲地，自主完成這個拼圖吧！',
+    mode: 'independent',
+    conditionType: 'free_play',
+  },
+];
+
+export const TUTORIAL_2_PUZZLE = createPuzzle(
+  'tutorial-2',
+  2,
+  '新手教學 2 · 輔助推導',
+  GRID_TUTORIAL_2,
+  SOLUTION_TUTORIAL_2,
+  {
+    size: 5,
+    regions: COLOR_REGIONS_5,
+    difficulty: 'tutorial',
+    category: 'tutorial',
+    description: '輔助引導教學：學習不再依賴單格棲地，透過觀察小區域矛盾與相鄰影響進行自主推導。',
+    guidance: {
+      mode: 'assisted',
+      instruction: TUTORIAL_2_STEPS[0].instruction,
+      highlightRegionId: TUTORIAL_2_STEPS[0].highlightRegionId,
+      steps: TUTORIAL_2_STEPS,
+    },
+  }
+);
+
+export const TUTORIAL_PUZZLES: PuzzleData[] = [
+  TUTORIAL_1_PUZZLE,
+  TUTORIAL_2_PUZZLE,
+];
+
+// ----------------------------------------------------
 // 5x5 TEST LEVEL (Campaign L1): Verified 100% Unique Solution [1, 3, 0, 2, 4]
 // ----------------------------------------------------
 const GRID_5X5_TEST: number[][] = [
@@ -237,7 +313,7 @@ function createPuzzle(
 
 export const PUZZLE_5X5_TEST = createPuzzle(
   'level-5x5-test',
-  2,
+  3,
   '5×5 實戰關卡',
   GRID_5X5_TEST,
   SOLUTION_5X5_TEST,
@@ -251,19 +327,19 @@ export const PUZZLE_5X5_TEST = createPuzzle(
 );
 
 export const PUZZLES_7X7: PuzzleData[] = [
-  createPuzzle('level-1', 3, '關卡 1 (7×7)', GRID_L1, SOLUTION_L1, {
+  createPuzzle('level-1', 4, '關卡 1 (7×7)', GRID_L1, SOLUTION_L1, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'easy',
     category: 'campaign',
   }),
-  createPuzzle('level-2', 4, '關卡 2 (7×7)', GRID_L2, SOLUTION_L2, {
+  createPuzzle('level-2', 5, '關卡 2 (7×7)', GRID_L2, SOLUTION_L2, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'medium',
     category: 'campaign',
   }),
-  createPuzzle('level-3', 5, '關卡 3 (7×7)', GRID_L3, SOLUTION_L3, {
+  createPuzzle('level-3', 6, '關卡 3 (7×7)', GRID_L3, SOLUTION_L3, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'hard',
@@ -273,6 +349,7 @@ export const PUZZLES_7X7: PuzzleData[] = [
 
 export const PUZZLES: PuzzleData[] = [
   TUTORIAL_1_PUZZLE,
+  TUTORIAL_2_PUZZLE,
   PUZZLE_5X5_TEST,
   ...PUZZLES_7X7,
 ];

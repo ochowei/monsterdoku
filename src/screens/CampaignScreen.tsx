@@ -160,30 +160,50 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({
 
     let shouldAdvance = false;
 
-    if (activeStep.stepId === 1) {
-      // Step 1: Placing Fox at (0, 0)
-      if (gridState[0][0] === 'fox') {
-        shouldAdvance = true;
+    if (puzzle.id === 'tutorial-2') {
+      if (activeStep.stepId === 1) {
+        // Step 1: Deduced Region 0 and placed fox at (0, 2)
+        if (gridState[0][2] === 'fox') {
+          shouldAdvance = true;
+        }
+      } else if (activeStep.stepId === 2) {
+        // Step 2: Deduced Region 1 and placed fox at (1, 0)
+        if (gridState[1][0] === 'fox' || gridState[2][3] === 'fox') {
+          shouldAdvance = true;
+        }
+      } else if (activeStep.stepId === 3) {
+        // Step 3: Deduced Region 2 and placed fox at (2, 3)
+        if (gridState[2][3] === 'fox') {
+          shouldAdvance = true;
+        }
       }
-    } else if (activeStep.stepId === 2) {
-      // Step 2: Excluding adjacent cells (0,1), (1,1), (1,0)
-      const crossedCount = [
-        gridState[0][1] === 'cross',
-        gridState[1][1] === 'cross',
-        gridState[1][0] === 'cross',
-      ].filter(Boolean).length;
-      if (crossedCount === 3 || gridState[2][1] === 'fox') {
-        shouldAdvance = true;
-      }
-    } else if (activeStep.stepId === 3) {
-      // Step 3: Placing Fox at (2, 1)
-      if (gridState[2][1] === 'fox' || gridState[1][3] === 'fox') {
-        shouldAdvance = true;
-      }
-    } else if (activeStep.stepId === 4) {
-      // Step 4: Placing Fox at (1, 3)
-      if (gridState[1][3] === 'fox') {
-        shouldAdvance = true;
+    } else {
+      // Tutorial 1:
+      if (activeStep.stepId === 1) {
+        // Step 1: Placing Fox at (0, 0)
+        if (gridState[0][0] === 'fox') {
+          shouldAdvance = true;
+        }
+      } else if (activeStep.stepId === 2) {
+        // Step 2: Excluding adjacent cells (0,1), (1,1), (1,0)
+        const crossedCount = [
+          gridState[0][1] === 'cross',
+          gridState[1][1] === 'cross',
+          gridState[1][0] === 'cross',
+        ].filter(Boolean).length;
+        if (crossedCount === 3 || gridState[2][1] === 'fox') {
+          shouldAdvance = true;
+        }
+      } else if (activeStep.stepId === 3) {
+        // Step 3: Placing Fox at (2, 1)
+        if (gridState[2][1] === 'fox' || gridState[1][3] === 'fox') {
+          shouldAdvance = true;
+        }
+      } else if (activeStep.stepId === 4) {
+        // Step 4: Placing Fox at (1, 3)
+        if (gridState[1][3] === 'fox') {
+          shouldAdvance = true;
+        }
       }
     }
 
@@ -286,6 +306,11 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({
           if (isEffectiveTutorialMode) {
             sounds.playMistake();
             setHintBanner(getTutorialMistakeFeedback(row, col));
+            // In Tutorial 2 (assisted mode): do NOT auto-convert to cross!
+            // Reject placement, show cue, and let player decide whether to mark ❌
+            if (puzzle.id === 'tutorial-2' || puzzle.guidance?.mode === 'assisted') {
+              return;
+            }
             setGridState((prev) => {
               const next = prev.map((r) => [...r]);
               next[row][col] = 'cross';
@@ -416,6 +441,11 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({
       if (isEffectiveTutorialMode) {
         sounds.playMistake();
         setHintBanner(getTutorialMistakeFeedback(row, col));
+        // In Tutorial 2 (assisted mode): do NOT auto-convert to cross!
+        // Reject placement, show cue, and let player decide whether to mark ❌
+        if (puzzle.id === 'tutorial-2' || puzzle.guidance?.mode === 'assisted') {
+          return;
+        }
         setGridState((prev) => {
           const next = prev.map((r) => [...r]);
           next[row][col] = 'cross';
@@ -601,7 +631,7 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({
       {/* Footer Info for itch.io playtest context */}
       <footer className="relative z-10 w-full max-w-2xl mx-auto mt-4 pt-3 border-t border-slate-800/60 text-center text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-1">
         <div>
-          {isEffectiveTutorialMode ? 'Monsterdoku · Tutorial Mode' : 'Monsterdoku · Campaign Mode'}
+          {isEffectiveTutorialMode ? `Monsterdoku · Tutorial ${levelIndex + 1}` : 'Monsterdoku · Campaign Mode'}
         </div>
         <div className="flex items-center gap-2">
           <span>itch.io Playtest Ver. 0.1</span>

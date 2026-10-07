@@ -8,7 +8,7 @@ import { GameScreen } from './types/gameFlow';
 import { HomeScreen } from './screens/HomeScreen';
 import { CampaignScreen } from './screens/CampaignScreen';
 import { EndlessScreen } from './screens/EndlessScreen';
-import { TUTORIAL_1_PUZZLE } from './data/samplePuzzle';
+import { TUTORIAL_PUZZLES } from './data/samplePuzzle';
 import { sounds } from './utils/audio';
 
 export default function App() {
@@ -25,7 +25,7 @@ export default function App() {
     return (
       <CampaignScreen
         isTutorialMode={true}
-        puzzles={[TUTORIAL_1_PUZZLE]}
+        puzzles={TUTORIAL_PUZZLES}
         onBackToHome={() => {
           sounds.playClear();
           setCurrentScreen('home');

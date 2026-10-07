@@ -68,7 +68,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Mode Selector Buttons */}
         <div className="w-full flex flex-col gap-3">
-          {/* Tutorial 1 Mode (Primary Onboarding Entry) */}
+          {/* Tutorial Mode (Primary Onboarding Entry) */}
           <button
             type="button"
             onClick={() => {
@@ -83,13 +83,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               </div>
               <div>
                 <div className="text-base font-bold text-white group-hover:text-emerald-200 transition-colors flex items-center gap-2">
-                  <span>新手教學 · Tutorial 1</span>
+                  <span>新手教學 · Tutorials</span>
                   <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/25 text-emerald-300 border border-emerald-400/40">
                     推薦入門
                   </span>
                 </div>
                 <div className="text-xs text-slate-300/90 mt-0.5">
-                  5×5 循序引導：掌握觀察、排除、放置與八方非相鄰
+                  5×5 循序教學：入門引導 1 ＋ 輔助推導 2
                 </div>
               </div>
             </div>

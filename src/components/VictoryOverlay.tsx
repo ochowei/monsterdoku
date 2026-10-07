@@ -30,6 +30,8 @@ export const VictoryOverlay: React.FC<VictoryOverlayProps> = ({
   if (!isOpen) return null;
 
   const isFinalLevel = currentLevel >= totalLevels - 1;
+  const isTutorial1 = isTutorialMode && currentLevel === 0 && totalLevels > 1;
+  const isTutorial2 = isTutorialMode && !isTutorial1;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-[fadeIn_0.35s_ease-out]">
@@ -45,10 +47,16 @@ export const VictoryOverlay: React.FC<VictoryOverlayProps> = ({
         {/* Title & Lore */}
         <div className="mt-4 mb-6">
           <div className="inline-flex items-center gap-1.5 text-xs text-amber-400/90 font-medium tracking-widest uppercase mb-1.5">
-            {isTutorialMode ? (
+            {isTutorial1 ? (
               <>
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Tutorial 1 Complete · 新手教學完成</span>
+                <span>Tutorial 1 Complete · 入門引導完成</span>
+                <Sparkles className="w-3.5 h-3.5" />
+              </>
+            ) : isTutorial2 ? (
+              <>
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Tutorial 2 Complete · 新手教學完成</span>
                 <Sparkles className="w-3.5 h-3.5" />
               </>
             ) : isFinalLevel ? (
@@ -66,15 +74,19 @@ export const VictoryOverlay: React.FC<VictoryOverlayProps> = ({
             )}
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2">
-            {isTutorialMode
-              ? '🎉 太棒了！新手引導完成'
+            {isTutorial1
+              ? '🎉 太棒了！入門引導完成'
+              : isTutorial2
+              ? '🎉 太厲害了！你已具備獨立解謎實力'
               : isFinalLevel
               ? '🎉 戰役完成！'
               : '三尾狐發現！'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
-            {isTutorialMode
-              ? '太棒了！你找到藏在棲地裡的三尾狐了。你已成功掌握三尾狐的行、列、棲地與八方非相鄰規則！現在你可以自信地探索闖關模式的各個關卡了。'
+            {isTutorial1
+              ? '太棒了！你找到藏在棲地裡的三尾狐了。你已成功掌握三尾狐的行、列、棲地與八方非相鄰規則！接下來進入教學 2，試著在更少提示的情況下自主推導。'
+              : isTutorial2
+              ? '你在更精煉的輔助引導下獨立完成了關鍵排除與推導！你已經完全掌握了 Monsterdoku 核心循環，現在可以前往闖關模式挑戰更多豐富的謎題！'
               : isFinalLevel
               ? `太厲害了！你已成功通關目前 Campaign 全部的 ${totalLevels} 個三尾狐棲地關卡！三尾狐向你優雅致意，都市的夜色歸於祥和。`
               : `恭喜通過第 ${currentLevel + 1} 關！三尾狐在光芒中展開了三條蓬鬆的靈尾。`}
@@ -99,15 +111,19 @@ export const VictoryOverlay: React.FC<VictoryOverlayProps> = ({
             )}
             <div>
               <div className="font-semibold text-slate-200">
-                {isTutorialMode
+                {isTutorial1
                   ? '新手教學 1 · 5×5 成功掌握'
+                  : isTutorial2
+                  ? '新手教學 2 · 5×5 輔助推導通關'
                   : isFinalLevel
                   ? `Campaign 全部 ${totalLevels} 個關卡全數完成`
                   : `第 ${currentLevel + 1} 關 · ${boardSize}×${boardSize} 顏色區域`}
               </div>
               <div className="text-[11px] text-slate-400">
-                {isTutorialMode
+                {isTutorial1
                   ? '已完成觀察、排除、放置與八方非相鄰規則實戰'
+                  : isTutorial2
+                  ? '已學會觀察小區域矛盾、間接排除與自主完成拼圖'
                   : isFinalLevel
                   ? `已成功探索完畢所有 ${totalLevels} 處三尾狐棲地`
                   : `剩餘 ${totalLevels - currentLevel - 1} 個關卡等待挑戰`}
@@ -124,7 +140,36 @@ export const VictoryOverlay: React.FC<VictoryOverlayProps> = ({
         </div>
 
         {/* Action Buttons */}
-        {isTutorialMode ? (
+        {isTutorial1 ? (
+          <div className="flex flex-col gap-2.5 items-center w-full">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center w-full">
+              <button
+                onClick={onNextLevel}
+                className="w-full sm:flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs transition-all shadow-lg shadow-orange-500/25 cursor-pointer active:scale-95"
+              >
+                <span>進入教學 2 · Next Tutorial</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              {onBackToHome && (
+                <button
+                  onClick={onBackToHome}
+                  className="w-full sm:flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition-colors border border-slate-700 cursor-pointer active:scale-95"
+                >
+                  <Home className="w-4 h-4 text-slate-400" />
+                  <span>返回首頁 · Home</span>
+                </button>
+              )}
+            </div>
+
+            <button
+              onClick={onPlayAgain}
+              className="text-xs text-slate-400 hover:text-slate-200 underline cursor-pointer mt-1"
+            >
+              重玩教學 1 · Replay Tutorial 1
+            </button>
+          </div>
+        ) : isTutorial2 ? (
           <div className="flex flex-col gap-2.5 items-center w-full">
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center w-full">
               {onGoToCampaign && (
@@ -152,7 +197,7 @@ export const VictoryOverlay: React.FC<VictoryOverlayProps> = ({
               onClick={onPlayAgain}
               className="text-xs text-slate-400 hover:text-slate-200 underline cursor-pointer mt-1"
             >
-              重玩教學關卡 · Replay Tutorial
+              重玩教學 2 · Replay Tutorial 2
             </button>
           </div>
         ) : isFinalLevel ? (

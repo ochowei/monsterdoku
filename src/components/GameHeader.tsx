@@ -54,17 +54,27 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
           )}
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-slate-300 font-semibold">
-            {isTutorialMode ? '新手教學 · Tutorial 1' : `第 ${currentLevel + 1} 關 / 共 ${totalLevels} 關`}
+            {isTutorialMode ? `新手教學 ${currentLevel + 1} · Tutorial ${currentLevel + 1}` : `第 ${currentLevel + 1} 關 / 共 ${totalLevels} 關`}
           </span>
           <span className="text-slate-600">·</span>
           <span className="text-slate-400 font-medium">{boardSize}×{boardSize} 顏色區域</span>
 
-          {/* Quick level switcher pills (only in campaign mode) */}
-          {!isTutorialMode && onSelectLevel && (
+          {/* Quick level switcher pills */}
+          {onSelectLevel && (
             <div className="flex items-center gap-1 ml-1">
               {Array.from({ length: totalLevels }, (_, idx) => {
-                const label = totalLevels >= 5 && idx === 0 ? 'T1' : totalLevels >= 5 ? `L${idx}` : `L${idx + 1}`;
-                const title = totalLevels >= 5 && idx === 0 ? '切換到新手教學 1 (5×5)' : `切換到關卡 ${idx + 1}`;
+                const label = isTutorialMode
+                  ? `T${idx + 1}`
+                  : totalLevels >= 6 && idx <= 1
+                  ? `T${idx + 1}`
+                  : totalLevels >= 6
+                  ? `L${idx - 1}`
+                  : `L${idx + 1}`;
+                const title = isTutorialMode
+                  ? `切換到新手教學 ${idx + 1}`
+                  : totalLevels >= 6 && idx <= 1
+                  ? `切換到新手教學 ${idx + 1} (5×5)`
+                  : `切換到關卡 ${idx + 1}`;
                 return (
                   <button
                     key={`lvl-chip-${idx}`}
