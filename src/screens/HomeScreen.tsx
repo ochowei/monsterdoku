@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Play, Sparkles, Volume2, VolumeX, Compass } from 'lucide-react';
+import { Play, Sparkles, Volume2, VolumeX, Compass, BookOpen } from 'lucide-react';
 import { FoxMascotShowcase } from '../components/FoxIllustration';
 import { GameScreen } from '../types/gameFlow';
 import { sounds } from '../utils/audio';
@@ -13,12 +13,16 @@ interface HomeScreenProps {
   onSelectScreen: (screen: GameScreen) => void;
   isMuted: boolean;
   onToggleMute: () => void;
+  discoveredCount?: number;
+  totalMonsters?: number;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onSelectScreen,
   isMuted,
   onToggleMute,
+  discoveredCount = 0,
+  totalMonsters = 3,
 }) => {
   return (
     <div className="min-h-screen bg-[#0e1626] bg-gradient-to-b from-[#0e1626] via-[#121c30] to-[#0a101b] text-slate-100 flex flex-col justify-between p-4 sm:p-6 relative overflow-x-hidden">
@@ -121,6 +125,36 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               </div>
             </div>
             <span className="text-amber-400 font-mono text-sm font-bold group-hover:translate-x-1 transition-transform">
+              →
+            </span>
+          </button>
+
+          {/* Monster Book Entry (Collection Feature) */}
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playTap();
+              onSelectScreen('monster-book');
+            }}
+            className="w-full group relative flex items-center justify-between p-4 rounded-2xl bg-gradient-to-r from-indigo-500/20 via-purple-500/15 to-indigo-600/20 hover:from-indigo-500/30 hover:to-purple-500/25 border border-indigo-400/40 hover:border-indigo-400/70 shadow-[0_8px_24px_rgba(99,102,241,0.15)] transition-all duration-200 cursor-pointer active:scale-[0.98] text-left"
+          >
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-indigo-500 text-slate-950 flex items-center justify-center shadow-md shadow-indigo-500/30 group-hover:scale-105 transition-transform">
+                <BookOpen className="w-5 h-5 ml-0.5" />
+              </div>
+              <div>
+                <div className="text-base font-bold text-white group-hover:text-indigo-200 transition-colors flex items-center gap-2">
+                  <span>怪獸圖鑑 · Monster Book</span>
+                  <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-indigo-500/25 text-indigo-300 border border-indigo-400/40">
+                    {discoveredCount} / {totalMonsters} discovered
+                  </span>
+                </div>
+                <div className="text-xs text-slate-300/90 mt-0.5">
+                  查看各區域棲地靈獸與收集生態記錄
+                </div>
+              </div>
+            </div>
+            <span className="text-indigo-400 font-mono text-sm font-bold group-hover:translate-x-1 transition-transform">
               →
             </span>
           </button>

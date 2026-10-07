@@ -8,11 +8,14 @@ import { GameScreen } from './types/gameFlow';
 import { HomeScreen } from './screens/HomeScreen';
 import { CampaignScreen } from './screens/CampaignScreen';
 import { EndlessScreen } from './screens/EndlessScreen';
+import { MonsterBookScreen } from './screens/MonsterBookScreen';
 import { TUTORIAL_PUZZLES, CAMPAIGN_PUZZLES } from './data/samplePuzzle';
+import { MONSTERS } from './data/monsters';
 import { sounds } from './utils/audio';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<GameScreen>('home');
+  const [discoveredMonsterIds] = useState<string[]>([]);
   const [isMuted, setIsMuted] = useState(false);
 
   const handleToggleMute = useCallback(() => {
@@ -65,12 +68,27 @@ export default function App() {
     );
   }
 
+  if (currentScreen === 'monster-book') {
+    return (
+      <MonsterBookScreen
+        monsters={MONSTERS}
+        discoveredMonsterIds={discoveredMonsterIds}
+        onBackToHome={() => {
+          sounds.playClear();
+          setCurrentScreen('home');
+        }}
+      />
+    );
+  }
+
   // Default: 'home'
   return (
     <HomeScreen
       onSelectScreen={(screen) => {
         setCurrentScreen(screen);
       }}
+      discoveredCount={discoveredMonsterIds.length}
+      totalMonsters={MONSTERS.length}
       isMuted={isMuted}
       onToggleMute={handleToggleMute}
     />
