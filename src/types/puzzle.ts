@@ -38,6 +38,7 @@ export interface TutorialStep {
 export interface TutorialGuidance {
   mode?: 'guided' | 'assisted' | 'independent';
   instruction?: string;
+  subText?: string;
   highlightRegionId?: number;
   highlightCell?: { row: number; col: number };
   highlightCells?: { row: number; col: number }[];

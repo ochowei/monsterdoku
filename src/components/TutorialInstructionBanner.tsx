@@ -43,7 +43,7 @@ export const TutorialInstructionBanner: React.FC<TutorialInstructionBannerProps>
                 {mode === 'assisted'
                   ? '輔助引導 · Assisted'
                   : mode === 'independent'
-                  ? '自主推理 · Independent'
+                  ? '獨立挑戰 · Independent'
                   : '探索指引 · Guidance'}
               </span>
 

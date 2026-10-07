@@ -216,6 +216,9 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({
   // Tutorial mistake contextual feedback helper
   const getTutorialMistakeFeedback = useCallback(
     (row: number, col: number) => {
+      const currentRegionId = puzzle.cells[row][col].regionId;
+      const targetRegion = puzzle.regions.find((r) => r.id === currentRegionId);
+
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
           if (gridState[r][c] === 'fox') {
@@ -228,12 +231,15 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({
             if (c === col) {
               return `💡 提示：第 ${c + 1} 列已經有一隻三尾狐囉！每列只能有 1 隻。`;
             }
+            if (puzzle.cells[r][c].regionId === currentRegionId) {
+              return `💡 提示：${targetRegion?.name || ''}棲地已經有一隻三尾狐囉！每個棲地只能有 1 隻。`;
+            }
           }
         }
       }
       return '💡 提示：這裡不符合三尾狐的唯一藏身處，試著換個位置推導看看！';
     },
-    [gridState, size]
+    [gridState, puzzle, size]
   );
 
   // Compute conflicts dynamically
@@ -306,9 +312,9 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({
           if (isEffectiveTutorialMode) {
             sounds.playMistake();
             setHintBanner(getTutorialMistakeFeedback(row, col));
-            // In Tutorial 2 (assisted mode): do NOT auto-convert to cross!
+            // In Tutorial 2 & 3: do NOT auto-convert to cross!
             // Reject placement, show cue, and let player decide whether to mark ❌
-            if (puzzle.id === 'tutorial-2' || puzzle.guidance?.mode === 'assisted') {
+            if (puzzle.id !== 'tutorial-1') {
               return;
             }
             setGridState((prev) => {
@@ -441,9 +447,9 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({
       if (isEffectiveTutorialMode) {
         sounds.playMistake();
         setHintBanner(getTutorialMistakeFeedback(row, col));
-        // In Tutorial 2 (assisted mode): do NOT auto-convert to cross!
+        // In Tutorial 2 & 3: do NOT auto-convert to cross!
         // Reject placement, show cue, and let player decide whether to mark ❌
-        if (puzzle.id === 'tutorial-2' || puzzle.guidance?.mode === 'assisted') {
+        if (puzzle.id !== 'tutorial-1') {
           return;
         }
         setGridState((prev) => {
@@ -571,7 +577,7 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({
         {isEffectiveTutorialMode && (activeStep || puzzle.guidance?.instruction) && (
           <TutorialInstructionBanner
             instruction={activeStep?.instruction || puzzle.guidance?.instruction || ''}
-            subText={activeStep?.subText}
+            subText={activeStep?.subText || puzzle.guidance?.subText}
             stepNumber={tutorialSteps ? tutorialStepIndex + 1 : undefined}
             totalSteps={tutorialSteps ? tutorialSteps.length : undefined}
             mode={activeStep?.mode || puzzle.guidance?.mode || 'guided'}

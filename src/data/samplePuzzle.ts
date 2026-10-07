@@ -210,9 +210,43 @@ export const TUTORIAL_2_PUZZLE = createPuzzle(
   }
 );
 
+// ----------------------------------------------------
+// TUTORIAL 3 (5x5 Independent): Verified 100% Unique Solution [3, 1, 4, 2, 0]
+// First fully independent solve: no scripted steps, no region/cell highlights
+// ----------------------------------------------------
+const GRID_TUTORIAL_3: number[][] = [
+  [1, 0, 0, 0, 0],
+  [1, 1, 0, 2, 2],
+  [1, 1, 0, 2, 2],
+  [1, 1, 3, 2, 2],
+  [4, 4, 3, 2, 2],
+];
+export const SOLUTION_TUTORIAL_3: number[] = [3, 1, 4, 2, 0];
+
+export const TUTORIAL_3_PUZZLE = createPuzzle(
+  'tutorial-3',
+  3,
+  '新手教學 3 · 獨立挑戰',
+  GRID_TUTORIAL_3,
+  SOLUTION_TUTORIAL_3,
+  {
+    size: 5,
+    regions: COLOR_REGIONS_5,
+    difficulty: 'tutorial',
+    category: 'tutorial',
+    description: '獨立挑戰關卡：完全沒有步驟指引與高亮提示，考驗玩家是否已能獨立完成整題推導。',
+    guidance: {
+      mode: 'independent',
+      instruction: '【獨立挑戰】這次換你自己來！運用剛才學到的技巧，找出所有藏在棲地裡的三尾狐吧。',
+      subText: '仔細觀察行、列、棲地與八方非相鄰規則。卡住時可使用上方 💡 燈泡提示。',
+    },
+  }
+);
+
 export const TUTORIAL_PUZZLES: PuzzleData[] = [
   TUTORIAL_1_PUZZLE,
   TUTORIAL_2_PUZZLE,
+  TUTORIAL_3_PUZZLE,
 ];
 
 // ----------------------------------------------------
@@ -313,7 +347,7 @@ function createPuzzle(
 
 export const PUZZLE_5X5_TEST = createPuzzle(
   'level-5x5-test',
-  3,
+  4,
   '5×5 實戰關卡',
   GRID_5X5_TEST,
   SOLUTION_5X5_TEST,
@@ -327,19 +361,19 @@ export const PUZZLE_5X5_TEST = createPuzzle(
 );
 
 export const PUZZLES_7X7: PuzzleData[] = [
-  createPuzzle('level-1', 4, '關卡 1 (7×7)', GRID_L1, SOLUTION_L1, {
+  createPuzzle('level-1', 5, '關卡 1 (7×7)', GRID_L1, SOLUTION_L1, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'easy',
     category: 'campaign',
   }),
-  createPuzzle('level-2', 5, '關卡 2 (7×7)', GRID_L2, SOLUTION_L2, {
+  createPuzzle('level-2', 6, '關卡 2 (7×7)', GRID_L2, SOLUTION_L2, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'medium',
     category: 'campaign',
   }),
-  createPuzzle('level-3', 6, '關卡 3 (7×7)', GRID_L3, SOLUTION_L3, {
+  createPuzzle('level-3', 7, '關卡 3 (7×7)', GRID_L3, SOLUTION_L3, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'hard',
@@ -350,6 +384,7 @@ export const PUZZLES_7X7: PuzzleData[] = [
 export const PUZZLES: PuzzleData[] = [
   TUTORIAL_1_PUZZLE,
   TUTORIAL_2_PUZZLE,
+  TUTORIAL_3_PUZZLE,
   PUZZLE_5X5_TEST,
   ...PUZZLES_7X7,
 ];

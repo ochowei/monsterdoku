@@ -89,7 +89,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </span>
                 </div>
                 <div className="text-xs text-slate-300/90 mt-0.5">
-                  5×5 循序教學：入門引導 1 ＋ 輔助推導 2
+                  3 個 5×5 關卡：引導 → 輔助 → 獨立挑戰
                 </div>
               </div>
             </div>

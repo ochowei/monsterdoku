@@ -63,18 +63,36 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
           {onSelectLevel && (
             <div className="flex items-center gap-1 ml-1">
               {Array.from({ length: totalLevels }, (_, idx) => {
-                const label = isTutorialMode
-                  ? `T${idx + 1}`
-                  : totalLevels >= 6 && idx <= 1
-                  ? `T${idx + 1}`
-                  : totalLevels >= 6
-                  ? `L${idx - 1}`
-                  : `L${idx + 1}`;
-                const title = isTutorialMode
-                  ? `切換到新手教學 ${idx + 1}`
-                  : totalLevels >= 6 && idx <= 1
-                  ? `切換到新手教學 ${idx + 1} (5×5)`
-                  : `切換到關卡 ${idx + 1}`;
+                let label = `L${idx + 1}`;
+                let title = `切換到關卡 ${idx + 1}`;
+
+                if (isTutorialMode) {
+                  label = `T${idx + 1}`;
+                  title =
+                    idx === 0
+                      ? '新手教學 1 · 入門引導 (5×5)'
+                      : idx === 1
+                      ? '新手教學 2 · 輔助推導 (5×5)'
+                      : '新手教學 3 · 獨立挑戰 (5×5)';
+                } else if (totalLevels >= 7) {
+                  if (idx === 0) {
+                    label = 'T1';
+                    title = '教學 1 · 入門引導 (5×5)';
+                  } else if (idx === 1) {
+                    label = 'T2';
+                    title = '教學 2 · 輔助推導 (5×5)';
+                  } else if (idx === 2) {
+                    label = 'T3';
+                    title = '教學 3 · 獨立挑戰 (5×5)';
+                  } else if (idx === 3) {
+                    label = '5×5';
+                    title = '5×5 實戰關卡';
+                  } else {
+                    label = `7-${idx - 3}`;
+                    title = `7×7 關卡 ${idx - 3}`;
+                  }
+                }
+
                 return (
                   <button
                     key={`lvl-chip-${idx}`}
