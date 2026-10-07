@@ -1,4 +1,4 @@
-import { CellState, ConflictInfo, PuzzleData } from '../types/puzzle';
+import { CellState, ConflictInfo, PuzzleCellData, PuzzleData } from '../types/puzzle';
 
 export interface BoardEvaluation {
   foxCount: number;
@@ -326,5 +326,164 @@ export function getHintAction(
   return {
     type: 'none',
     message: '所有三尾狐皆已尋獲！',
+  };
+}
+
+export interface PuzzleValidationResult {
+  isValid: boolean;
+  isUnique: boolean;
+  solutionCount: number;
+  errors: string[];
+  regionSizes: Record<number, number>;
+}
+
+export function solvePuzzleSolutions(
+  cells: PuzzleCellData[][],
+  size: number
+): number[][] {
+  const solutions: number[][] = [];
+  function search(row: number, currentCols: number[]) {
+    if (row === size) {
+      solutions.push([...currentCols]);
+      return;
+    }
+    for (let c = 0; c < size; c++) {
+      if (currentCols.includes(c)) continue;
+      if (row > 0 && Math.abs(currentCols[row - 1] - c) <= 1) continue;
+      const reg = cells[row][c].regionId;
+      let regUsed = false;
+      for (let prevR = 0; prevR < row; prevR++) {
+        if (cells[prevR][currentCols[prevR]].regionId === reg) {
+          regUsed = true;
+          break;
+        }
+      }
+      if (regUsed) continue;
+
+      currentCols.push(c);
+      search(row + 1, currentCols);
+      currentCols.pop();
+    }
+  }
+  search(0, []);
+  return solutions;
+}
+
+export function validatePuzzleStructure(
+  puzzle: PuzzleData,
+  options?: { allowSingleCellRegion?: boolean }
+): PuzzleValidationResult {
+  const errors: string[] = [];
+  const size = puzzle.size;
+  const regionSizes: Record<number, number> = {};
+
+  puzzle.regions.forEach((r) => {
+    regionSizes[r.id] = 0;
+  });
+
+  // 1. Check dimensions
+  if (puzzle.cells.length !== size) {
+    errors.push(`Row count mismatch: expected ${size}, got ${puzzle.cells.length}`);
+  }
+
+  // 2. Map cells by region
+  const regionCells: Map<number, { r: number; c: number }[]> = new Map();
+  for (let r = 0; r < size; r++) {
+    if (puzzle.cells[r]?.length !== size) {
+      errors.push(`Row ${r} col count mismatch: expected ${size}`);
+      continue;
+    }
+    for (let c = 0; c < size; c++) {
+      const regId = puzzle.cells[r][c].regionId;
+      if (!puzzle.regions.some((reg) => reg.id === regId)) {
+        errors.push(`Invalid regionId ${regId} at (${r}, ${c})`);
+      }
+      regionSizes[regId] = (regionSizes[regId] || 0) + 1;
+      if (!regionCells.has(regId)) {
+        regionCells.set(regId, []);
+      }
+      regionCells.get(regId)!.push({ r, c });
+    }
+  }
+
+  // 3. Check region count and connectivity
+  if (regionCells.size !== size) {
+    errors.push(`Expected ${size} active regions, found ${regionCells.size}`);
+  }
+
+  for (const [id, cells] of regionCells.entries()) {
+    if (!options?.allowSingleCellRegion && cells.length < 2) {
+      errors.push(`Region ${id} has size ${cells.length} < 2 (single cell regions not allowed)`);
+    }
+
+    // 4-connected BFS
+    const visited = new Set<string>();
+    const queue = [cells[0]];
+    visited.add(`${cells[0].r},${cells[0].c}`);
+    while (queue.length > 0) {
+      const cur = queue.shift()!;
+      for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+        const nr = cur.r + dr;
+        const nc = cur.c + dc;
+        if (
+          nr >= 0 &&
+          nr < size &&
+          nc >= 0 &&
+          nc < size &&
+          puzzle.cells[nr][nc].regionId === id
+        ) {
+          const key = `${nr},${nc}`;
+          if (!visited.has(key)) {
+            visited.add(key);
+            queue.push({ r: nr, c: nc });
+          }
+        }
+      }
+    }
+    if (visited.size !== cells.length) {
+      errors.push(`Region ${id} is not 4-connected (visited ${visited.size}/${cells.length} cells)`);
+    }
+  }
+
+  // 4. Check solution validity
+  if (puzzle.solution.length !== size) {
+    errors.push(`Solution length mismatch: expected ${size}, got ${puzzle.solution.length}`);
+  } else {
+    const colSet = new Set(puzzle.solution);
+    if (colSet.size !== size) {
+      errors.push('Duplicate columns in solution');
+    }
+    const solRegions = new Set<number>();
+    for (let r = 0; r < size; r++) {
+      const c = puzzle.solution[r];
+      if (c >= 0 && c < size) {
+        solRegions.add(puzzle.cells[r][c].regionId);
+        if (r > 0 && Math.abs(puzzle.solution[r - 1] - c) <= 1) {
+          errors.push(`Adjacent foxes in solution between row ${r - 1} and ${r}`);
+        }
+      }
+    }
+    if (solRegions.size !== size) {
+      errors.push(`Solution does not have exactly 1 fox per region (found ${solRegions.size}/${size})`);
+    }
+  }
+
+  // 5. Check uniqueness via backtracking solver
+  const solutions = solvePuzzleSolutions(puzzle.cells, size);
+  const solutionCount = solutions.length;
+  const isUnique = solutionCount === 1;
+
+  if (solutionCount === 0) {
+    errors.push('Puzzle has no valid solutions');
+  } else if (solutionCount > 1) {
+    errors.push(`Puzzle does not have unique solution: found ${solutionCount} solutions`);
+  }
+
+  return {
+    isValid: errors.length === 0,
+    isUnique,
+    solutionCount,
+    errors,
+    regionSizes,
   };
 }

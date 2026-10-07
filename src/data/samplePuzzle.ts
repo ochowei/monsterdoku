@@ -250,7 +250,35 @@ export const TUTORIAL_PUZZLES: PuzzleData[] = [
 ];
 
 // ----------------------------------------------------
-// 5x5 TEST LEVEL (Campaign L1): Verified 100% Unique Solution [1, 3, 0, 2, 4]
+// CAMPAIGN LEVEL 1 (5x5 Very Easy): Verified 100% Unique Solution [1, 4, 2, 0, 3]
+// First formal Campaign level. Clear breakthrough with border 2-cell / 3-cell regions.
+// Basic 1-step deductions: scan constraints -> immediate placement / elimination.
+// ----------------------------------------------------
+export const GRID_CAMPAIGN_L1: number[][] = [
+  [0, 0, 2, 1, 1],
+  [2, 2, 2, 2, 1],
+  [3, 2, 2, 2, 4],
+  [3, 4, 4, 4, 4],
+  [3, 4, 4, 4, 4],
+];
+export const SOLUTION_CAMPAIGN_L1: number[] = [1, 4, 2, 0, 3];
+
+// ----------------------------------------------------
+// CAMPAIGN LEVEL 2 (5x5 Easy): Verified 100% Unique Solution [0, 2, 4, 1, 3]
+// Requires mastering the core deduction loop: Scan -> Eliminate -> Place -> Scan again.
+// Features a short 2-step deduction chain combining row and region interaction.
+// ----------------------------------------------------
+export const GRID_CAMPAIGN_L2: number[][] = [
+  [0, 0, 1, 1, 2],
+  [1, 1, 1, 1, 2],
+  [3, 3, 3, 4, 2],
+  [3, 3, 3, 4, 4],
+  [3, 3, 3, 4, 4],
+];
+export const SOLUTION_CAMPAIGN_L2: number[] = [0, 2, 4, 1, 3];
+
+// ----------------------------------------------------
+// 5x5 TEST LEVEL (Archived prototype level): Verified 100% Unique Solution [1, 3, 0, 2, 4]
 // ----------------------------------------------------
 const GRID_5X5_TEST: number[][] = [
   [0, 0, 1, 1, 1],
@@ -312,7 +340,7 @@ function createPuzzle(
   options?: {
     size?: number;
     regions?: ColorRegion[];
-    difficulty?: 'tutorial' | 'beginner' | 'easy' | 'medium' | 'hard';
+    difficulty?: 'tutorial' | 'very_easy' | 'beginner' | 'easy' | 'medium' | 'hard';
     category?: 'tutorial' | 'campaign' | 'test' | 'endless';
     description?: string;
     guidance?: TutorialGuidance;
@@ -345,35 +373,65 @@ function createPuzzle(
   };
 }
 
+export const CAMPAIGN_L1_PUZZLE = createPuzzle(
+  'campaign-1',
+  1,
+  '關卡 1 · 5×5 (Very Easy)',
+  GRID_CAMPAIGN_L1,
+  SOLUTION_CAMPAIGN_L1,
+  {
+    size: 5,
+    regions: COLOR_REGIONS_5,
+    difficulty: 'very_easy',
+    category: 'campaign',
+    description: '5×5 入門實戰關卡：脫離教學輔助，自主運用棲地與邊界限制進行推導。',
+  }
+);
+
+export const CAMPAIGN_L2_PUZZLE = createPuzzle(
+  'campaign-2',
+  2,
+  '關卡 2 · 5×5 (Easy)',
+  GRID_CAMPAIGN_L2,
+  SOLUTION_CAMPAIGN_L2,
+  {
+    size: 5,
+    regions: COLOR_REGIONS_5,
+    difficulty: 'easy',
+    category: 'campaign',
+    description: '5×5 進階實戰關卡：建立「掃視 → 排除 → 放置」思維循環，體驗短鏈邏輯排除。',
+  }
+);
+
 export const PUZZLE_5X5_TEST = createPuzzle(
   'level-5x5-test',
-  4,
-  '5×5 實戰關卡',
+  99,
+  '5×5 測試關卡',
   GRID_5X5_TEST,
   SOLUTION_5X5_TEST,
   {
     size: 5,
     regions: COLOR_REGIONS_5,
     difficulty: 'beginner',
-    category: 'campaign',
-    description: '5×5 小型棋盤進階關卡，獨立自主推導與驗證核心非相鄰邏輯。',
+    category: 'test',
+    description: '5×5 開發測試關卡。',
   }
 );
 
 export const PUZZLES_7X7: PuzzleData[] = [
-  createPuzzle('level-1', 5, '關卡 1 (7×7)', GRID_L1, SOLUTION_L1, {
+  createPuzzle('level-1', 3, '關卡 3 (7×7)', GRID_L1, SOLUTION_L1, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'easy',
     category: 'campaign',
   }),
-  createPuzzle('level-2', 6, '關卡 2 (7×7)', GRID_L2, SOLUTION_L2, {
+  createPuzzle('level-2', 4, '關卡 4 (7×7)', GRID_L2, SOLUTION_L2, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'medium',
     category: 'campaign',
   }),
-  createPuzzle('level-3', 7, '關卡 3 (7×7)', GRID_L3, SOLUTION_L3, {
+  createPuzzle('level-3', 5, '關卡 5 (7×7)', GRID_L3, SOLUTION_L3, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'hard',
@@ -381,15 +439,15 @@ export const PUZZLES_7X7: PuzzleData[] = [
   }),
 ];
 
-export const PUZZLES: PuzzleData[] = [
-  TUTORIAL_1_PUZZLE,
-  TUTORIAL_2_PUZZLE,
-  TUTORIAL_3_PUZZLE,
-  PUZZLE_5X5_TEST,
+export const CAMPAIGN_PUZZLES: PuzzleData[] = [
+  CAMPAIGN_L1_PUZZLE,
+  CAMPAIGN_L2_PUZZLE,
   ...PUZZLES_7X7,
 ];
 
+export const PUZZLES: PuzzleData[] = CAMPAIGN_PUZZLES;
+
 // Backwards compatibility export
-export const SAMPLE_PUZZLE = PUZZLE_5X5_TEST;
-export const SAMPLE_SOLUTION = SOLUTION_5X5_TEST;
-export const SAMPLE_REGIONS = COLOR_REGIONS_7;
+export const SAMPLE_PUZZLE = CAMPAIGN_L1_PUZZLE;
+export const SAMPLE_SOLUTION = SOLUTION_CAMPAIGN_L1;
+export const SAMPLE_REGIONS = COLOR_REGIONS_5;

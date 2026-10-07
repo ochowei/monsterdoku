@@ -8,7 +8,7 @@ import { GameScreen } from './types/gameFlow';
 import { HomeScreen } from './screens/HomeScreen';
 import { CampaignScreen } from './screens/CampaignScreen';
 import { EndlessScreen } from './screens/EndlessScreen';
-import { TUTORIAL_PUZZLES } from './data/samplePuzzle';
+import { TUTORIAL_PUZZLES, CAMPAIGN_PUZZLES } from './data/samplePuzzle';
 import { sounds } from './utils/audio';
 
 export default function App() {
@@ -41,6 +41,7 @@ export default function App() {
   if (currentScreen === 'campaign') {
     return (
       <CampaignScreen
+        puzzles={CAMPAIGN_PUZZLES}
         onBackToHome={() => {
           sounds.playClear();
           setCurrentScreen('home');

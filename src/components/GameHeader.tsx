@@ -74,22 +74,14 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
                       : idx === 1
                       ? '新手教學 2 · 輔助推導 (5×5)'
                       : '新手教學 3 · 獨立挑戰 (5×5)';
-                } else if (totalLevels >= 7) {
+                } else {
+                  label = `L${idx + 1}`;
                   if (idx === 0) {
-                    label = 'T1';
-                    title = '教學 1 · 入門引導 (5×5)';
+                    title = '第 1 關 · 5×5 (Very Easy)';
                   } else if (idx === 1) {
-                    label = 'T2';
-                    title = '教學 2 · 輔助推導 (5×5)';
-                  } else if (idx === 2) {
-                    label = 'T3';
-                    title = '教學 3 · 獨立挑戰 (5×5)';
-                  } else if (idx === 3) {
-                    label = '5×5';
-                    title = '5×5 實戰關卡';
+                    title = '第 2 關 · 5×5 (Easy)';
                   } else {
-                    label = `7-${idx - 3}`;
-                    title = `7×7 關卡 ${idx - 3}`;
+                    title = `第 ${idx + 1} 關 · 7×7`;
                   }
                 }
 

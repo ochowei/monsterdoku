@@ -55,7 +55,7 @@ export interface PuzzleData {
   regions: ColorRegion[];
   cells: PuzzleCellData[][];
   solution: number[]; // col index for each row: solution[row] = col
-  difficulty?: 'tutorial' | 'beginner' | 'easy' | 'medium' | 'hard';
+  difficulty?: 'tutorial' | 'very_easy' | 'beginner' | 'easy' | 'medium' | 'hard';
   category?: 'tutorial' | 'campaign' | 'test' | 'endless';
   description?: string;
   guidance?: TutorialGuidance;
