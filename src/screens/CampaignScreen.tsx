@@ -99,10 +99,16 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
     sounds.playClear();
   }, []);
 
-  // Advance to next level
+  // Restart entire Campaign from Level 1
+  const handleRestartCampaign = useCallback(() => {
+    handleSelectLevel(0);
+  }, [handleSelectLevel]);
+
+  // Advance to next level in Campaign (stops at final level without wrapping)
   const handleNextLevel = useCallback(() => {
-    const nextIdx = (levelIndex + 1) % PUZZLES.length;
-    handleSelectLevel(nextIdx);
+    if (levelIndex < PUZZLES.length - 1) {
+      handleSelectLevel(levelIndex + 1);
+    }
   }, [levelIndex, handleSelectLevel]);
 
   // Compute conflicts dynamically
@@ -482,6 +488,8 @@ export const CampaignScreen: React.FC<CampaignScreenProps> = ({ onBackToHome }) 
         totalLevels={PUZZLES.length}
         onPlayAgain={handleReset}
         onNextLevel={handleNextLevel}
+        onRestartCampaign={handleRestartCampaign}
+        onBackToHome={onBackToHome}
       />
 
       <GameOverOverlay
