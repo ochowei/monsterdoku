@@ -467,6 +467,38 @@ export const CAMPAIGN_L4_PUZZLE = createPuzzle(
   }
 );
 
+// ----------------------------------------------------
+// CAMPAIGN LEVEL 5 (7x7 Easy+ Transition): Verified 100% Unique Solution [0, 2, 5, 1, 4, 6, 3]
+// First 7x7 board: Expands grid size to 7x7 while keeping deduction depth accessible.
+// Provides a natural breathing room after L4, with an intuitive 2-step opening (top-left)
+// followed by clean 1-step / short 2-step chain reaction.
+// ----------------------------------------------------
+export const GRID_CAMPAIGN_L5: number[][] = [
+  [0, 0, 1, 2, 2, 2, 2],
+  [3, 3, 1, 2, 2, 2, 2],
+  [3, 3, 3, 4, 2, 2, 2],
+  [3, 3, 3, 4, 2, 2, 2],
+  [3, 3, 3, 4, 4, 4, 4],
+  [3, 6, 6, 4, 4, 4, 5],
+  [3, 6, 6, 6, 5, 5, 5],
+];
+export const SOLUTION_CAMPAIGN_L5: number[] = [0, 2, 5, 1, 4, 6, 3];
+
+export const CAMPAIGN_L5_PUZZLE = createPuzzle(
+  'campaign-5',
+  5,
+  '關卡 5 · 7×7 (Easy+)',
+  GRID_CAMPAIGN_L5,
+  SOLUTION_CAMPAIGN_L5,
+  {
+    size: 7,
+    regions: COLOR_REGIONS_7,
+    difficulty: 'easy_plus',
+    category: 'campaign',
+    description: '更廣的棲地，熟悉的推理。首次踏入 7×7 棋盤，重回親切的突破口，在開闊的都市版圖中穩健推進。',
+  }
+);
+
 export const PUZZLE_5X5_TEST = createPuzzle(
   'level-5x5-test',
   99,
@@ -483,19 +515,19 @@ export const PUZZLE_5X5_TEST = createPuzzle(
 );
 
 export const PUZZLES_7X7: PuzzleData[] = [
-  createPuzzle('level-1', 5, '關卡 5 (7×7)', GRID_L1, SOLUTION_L1, {
+  createPuzzle('level-1', 6, '關卡 6 (7×7)', GRID_L1, SOLUTION_L1, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'easy',
     category: 'campaign',
   }),
-  createPuzzle('level-2', 6, '關卡 6 (7×7)', GRID_L2, SOLUTION_L2, {
+  createPuzzle('level-2', 7, '關卡 7 (7×7)', GRID_L2, SOLUTION_L2, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'medium',
     category: 'campaign',
   }),
-  createPuzzle('level-3', 7, '關卡 7 (7×7)', GRID_L3, SOLUTION_L3, {
+  createPuzzle('level-3', 8, '關卡 8 (7×7)', GRID_L3, SOLUTION_L3, {
     size: 7,
     regions: COLOR_REGIONS_7,
     difficulty: 'hard',
@@ -508,6 +540,7 @@ export const CAMPAIGN_PUZZLES: PuzzleData[] = [
   CAMPAIGN_L2_PUZZLE,
   CAMPAIGN_L3_PUZZLE,
   CAMPAIGN_L4_PUZZLE,
+  CAMPAIGN_L5_PUZZLE,
   ...PUZZLES_7X7,
 ];
 

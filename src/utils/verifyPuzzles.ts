@@ -6,6 +6,7 @@ import {
   CAMPAIGN_L2_PUZZLE,
   CAMPAIGN_L3_PUZZLE,
   CAMPAIGN_L4_PUZZLE,
+  CAMPAIGN_L5_PUZZLE,
   CAMPAIGN_PUZZLES,
   TUTORIAL_PUZZLES,
   PUZZLES_7X7,
@@ -87,7 +88,24 @@ function runVerification() {
     console.log('  ✅ L4 PASSED\n');
   }
 
-  // 5. Verify No Repetition across Onboarding and Campaign
+  // 5. Verify Campaign L5
+  console.log('▶ Verifying Campaign Level 5 (7×7 Easy+ Transition)...');
+  const l5Result = validatePuzzleStructure(CAMPAIGN_L5_PUZZLE, {
+    allowSingleCellRegion: false,
+  });
+  console.log('  - Grid size:', CAMPAIGN_L5_PUZZLE.size, 'x', CAMPAIGN_L5_PUZZLE.size);
+  console.log('  - Region sizes:', l5Result.regionSizes);
+  console.log('  - Solutions found:', l5Result.solutionCount);
+  console.log('  - Is unique:', l5Result.isUnique);
+  console.log('  - Is valid:', l5Result.isValid);
+  if (!l5Result.isValid || !l5Result.isUnique) {
+    console.error('  ❌ L5 Validation FAILED:', l5Result.errors);
+    allPassed = false;
+  } else {
+    console.log('  ✅ L5 PASSED\n');
+  }
+
+  // 6. Verify No Repetition across Onboarding and Campaign
   console.log('▶ Verifying Solution Distinctness across Levels...');
   const solutions = [
     { name: 'Tutorial 1', sol: TUTORIAL_1_PUZZLE.solution.join(',') },
@@ -97,6 +115,7 @@ function runVerification() {
     { name: 'Campaign L2', sol: CAMPAIGN_L2_PUZZLE.solution.join(',') },
     { name: 'Campaign L3', sol: CAMPAIGN_L3_PUZZLE.solution.join(',') },
     { name: 'Campaign L4', sol: CAMPAIGN_L4_PUZZLE.solution.join(',') },
+    { name: 'Campaign L5', sol: CAMPAIGN_L5_PUZZLE.solution.join(',') },
   ];
 
   const seen = new Map<string, string>();
@@ -115,7 +134,7 @@ function runVerification() {
     console.log('  ✅ All Solutions are distinct across all levels\n');
   }
 
-  // 6. Verify Tutorial Puzzles Integrity
+  // 7. Verify Tutorial Puzzles Integrity
   console.log('▶ Verifying Tutorial 1-3 Integrity...');
   for (const t of TUTORIAL_PUZZLES) {
     // Tutorial 1 has a single-cell region by design for introductory guidance
@@ -130,7 +149,7 @@ function runVerification() {
   }
   console.log('');
 
-  // 7. Verify 7x7 Levels Integrity
+  // 8. Verify 7x7 Levels Integrity
   console.log('▶ Verifying 7×7 Levels Integrity...');
   for (const p7 of PUZZLES_7X7) {
     const res = validatePuzzleStructure(p7);
@@ -143,25 +162,27 @@ function runVerification() {
   }
   console.log('');
 
-  // 8. Verify Campaign Progression
+  // 9. Verify Campaign Progression
   console.log('▶ Verifying Campaign List Structure...');
   console.log('  - Total Campaign levels:', CAMPAIGN_PUZZLES.length);
   console.log('  - Level 1 ID:', CAMPAIGN_PUZZLES[0].id, `(${CAMPAIGN_PUZZLES[0].size}x${CAMPAIGN_PUZZLES[0].size}, ${CAMPAIGN_PUZZLES[0].difficulty})`);
   console.log('  - Level 2 ID:', CAMPAIGN_PUZZLES[1].id, `(${CAMPAIGN_PUZZLES[1].size}x${CAMPAIGN_PUZZLES[1].size}, ${CAMPAIGN_PUZZLES[1].difficulty})`);
   console.log('  - Level 3 ID:', CAMPAIGN_PUZZLES[2].id, `(${CAMPAIGN_PUZZLES[2].size}x${CAMPAIGN_PUZZLES[2].size}, ${CAMPAIGN_PUZZLES[2].difficulty})`);
   console.log('  - Level 4 ID:', CAMPAIGN_PUZZLES[3].id, `(${CAMPAIGN_PUZZLES[3].size}x${CAMPAIGN_PUZZLES[3].size}, ${CAMPAIGN_PUZZLES[3].difficulty})`);
-  console.log('  - Level 5 ID:', CAMPAIGN_PUZZLES[4].id, `(${CAMPAIGN_PUZZLES[4].size}x${CAMPAIGN_PUZZLES[4].size})`);
+  console.log('  - Level 5 ID:', CAMPAIGN_PUZZLES[4].id, `(${CAMPAIGN_PUZZLES[4].size}x${CAMPAIGN_PUZZLES[4].size}, ${CAMPAIGN_PUZZLES[4].difficulty})`);
+  console.log('  - Level 6 ID:', CAMPAIGN_PUZZLES[5].id, `(${CAMPAIGN_PUZZLES[5].size}x${CAMPAIGN_PUZZLES[5].size})`);
   
   if (
     CAMPAIGN_PUZZLES[0].id !== 'campaign-1' ||
     CAMPAIGN_PUZZLES[1].id !== 'campaign-2' ||
     CAMPAIGN_PUZZLES[2].id !== 'campaign-3' ||
-    CAMPAIGN_PUZZLES[3].id !== 'campaign-4'
+    CAMPAIGN_PUZZLES[3].id !== 'campaign-4' ||
+    CAMPAIGN_PUZZLES[4].id !== 'campaign-5'
   ) {
     console.error('  ❌ Campaign list order incorrect!');
     allPassed = false;
   } else {
-    console.log('  ✅ Campaign progression correctly set to L1 -> L2 -> L3 -> L4 -> existing levels...\n');
+    console.log('  ✅ Campaign progression correctly set to L1 -> L2 -> L3 -> L4 -> L5 -> existing levels...\n');
   }
 
   if (allPassed) {
